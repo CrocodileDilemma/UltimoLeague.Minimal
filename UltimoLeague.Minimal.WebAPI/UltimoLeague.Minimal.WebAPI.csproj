@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" Version="5.1.0" />
+    <PackageReference Include="FastEndpoints.Swagger" Version="5.1.0" />
+    <PackageReference Include="FluentResults" Version="3.11.0" />
+    <PackageReference Include="Mapster" Version="7.3.0" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UltimoLeague.Minimal.Contracts\UltimoLeague.Minimal.Contracts.csproj" />
+    <ProjectReference Include="..\UltimoLeague.Minimal.DAL\UltimoLeague.Minimal.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Endpoints\Fixtures\" />
+    <Folder Include="Endpoints\Statistics\" />
+    <Folder Include="Endpoints\Results\" />
+  </ItemGroup>
+
+</Project>
