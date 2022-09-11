@@ -2,6 +2,7 @@
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
+using UltimoLeague.Minimal.WebAPI.Utilities;
 
 namespace UltimoLeague.Minimal.WebAPI.Services
 {
@@ -21,7 +22,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (result is null)
             {
-                return Result.Fail<PlayerDto>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFound<Player>());
             }
 
             return Result.Ok(result);
@@ -33,7 +34,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (result is null)
             {
-                return Result.Fail<PlayerDto>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFound<Player>());
             }
 
             return Result.Ok(result);
@@ -48,7 +49,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
         public async Task<Result<PlayerMinimalDto>> Post(PlayerRequest request)
         {
             Player player = request.Adapt<Player>();
-            player.MembershipNumber = this.GenerateMembershipNumber();
+            player.MembershipNumber = Generators.MembershipNumber();
 
             try
             {
@@ -57,7 +58,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<PlayerMinimalDto>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<PlayerMinimalDto>(BaseErrors.OperationFailed(ex));
             }
         }
 
@@ -66,7 +67,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var player = _repository.FindById(request.Id);
             if (player is null)
             {
-                return Result.Fail<PlayerMinimalDto>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<PlayerMinimalDto>(BaseErrors.ObjectNotFound<Player>());
             }
 
             request.Adapt(player);
@@ -78,13 +79,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<PlayerMinimalDto>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<PlayerMinimalDto>(BaseErrors.OperationFailed(ex));
             }
-        }
-
-        private string GenerateMembershipNumber()
-        {
-            return "qqeeqeqweqe";
         }
 
         private IQueryable<PlayerDto> PlayerQuery()

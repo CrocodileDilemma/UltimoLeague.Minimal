@@ -24,7 +24,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var entity = await _repository.FindByIdAsync(id);
             if (entity is null)
             {
-                return Result.Fail<T>(new ObjectNotFoundWithId<T>(id).Message);
+                return Result.Fail<T>(BaseErrors.ObjectNotFoundWithId<T>(id));
             }
 
             return Result.Ok<T>(entity);
@@ -46,7 +46,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var entity = await _repository.FindOneAsync(expression);
             if (entity is null)
             {
-                return Result.Fail<T>(new ObjectNotFound<T>().Message);
+                return Result.Fail<T>(BaseErrors.ObjectNotFound<T>());
             }
 
             return Result.Ok<T>(entity);
@@ -57,7 +57,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var entities = _repository.FilterBy(expression);
             if (entities is null || !entities.Any())
             {
-                return Result.Fail<IEnumerable<T>>(new ObjectsNotFound<T>().Message);
+                return Result.Fail<IEnumerable<T>>(BaseErrors.ObjectsNotFound<T>());
             }
 
             return Result.Ok<IEnumerable<T>>(entities);
@@ -72,7 +72,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<T>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<T>(BaseErrors.OperationFailed(ex));
             }
         }
 
@@ -85,7 +85,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<T>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<T>(BaseErrors.OperationFailed(ex));
             }
         }
     }

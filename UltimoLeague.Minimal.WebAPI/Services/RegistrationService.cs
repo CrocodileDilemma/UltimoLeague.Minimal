@@ -3,6 +3,7 @@ using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
+using UltimoLeague.Minimal.WebAPI.Utilities;
 
 namespace UltimoLeague.Minimal.WebAPI.Services
 {
@@ -25,7 +26,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (result is null)
             {            
-                return Result.Fail<RegistrationDto>(new InvalidObjectId(id).Message);
+                return Result.Fail<RegistrationDto>(BaseErrors.InvalidObjectId(id));
             }
 
             return Result.Ok<RegistrationDto>(result);
@@ -50,29 +51,29 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (player is null)
             {
-                return Result.Fail<Registration>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<Registration>(BaseErrors.ObjectNotFound<Player>());
             }
 
             if (!player.Active)
             {
-                return Result.Fail<Registration>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<Registration>(PlayerErrors.PlayerInactive());
             }
 
             var team = await _teamRepository.FindByIdAsync(request.TeamId);
 
             if (team is null)
             {
-                return Result.Fail<Registration>(new ObjectNotFound<Team>().Message);
+                return Result.Fail<Registration>(BaseErrors.ObjectNotFound<Team>());
             }
 
             if (player.ActiveTeamId == team.Id)
             {
-                return Result.Fail<Registration>(new ObjectNotFound<Player>().Message);
+                return Result.Fail<Registration>(PlayerErrors.PlayerAlreadyRegistered(team.Code));
             }
 
             var registration = new Registration 
             { 
-                RegistrationNumber = this.GenerateRegistrationNumber(), 
+                RegistrationNumber = Generators.RegistrationNumber(),
                 PlayerId = player.Id, 
                 TeamId = team.Id,
                 PreviousTeamId = player.ActiveTeamId
@@ -88,13 +89,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<Registration>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<Registration>(BaseErrors.OperationFailed(ex));
             }
-        }
-
-        private string GenerateRegistrationNumber()
-        {
-            return "rr3333333";
         }
 
         private IQueryable<RegistrationDto> RegistratonQuery()

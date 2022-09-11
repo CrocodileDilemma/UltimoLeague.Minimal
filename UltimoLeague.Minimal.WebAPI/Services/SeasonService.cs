@@ -21,7 +21,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (league is null)
             {
-                return Result.Fail<Season>(new ObjectNotFound<League>().Message);
+                return Result.Fail<Season>(BaseErrors.ObjectNotFound<League>());
             }
 
             var seasons = Repository.FilterBy(x => x.LeagueId == league.Id && x.StartDate <= request.EndDate
@@ -29,7 +29,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (seasons.Any())
             {
-                return Result.Fail<Season>(new ObjectExists<Season>().Message);
+                return Result.Fail<Season>(BaseErrors.ObjectExists<Season>());
             }
 
             var season = new Season

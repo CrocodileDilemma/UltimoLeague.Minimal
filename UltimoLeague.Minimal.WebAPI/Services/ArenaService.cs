@@ -15,7 +15,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (arena is not null)
             {
-                return Result.Fail<Arena>(new ObjectExists<Arena>().Message);
+                return Result.Fail<Arena>(BaseErrors.ObjectExists<Arena>());
             }
 
             arena = new Arena { ArenaName = arenaName };

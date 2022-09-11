@@ -14,7 +14,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (sport is not null)
             {
-                return Result.Fail<Sport>(new ObjectExists<Sport>().Message);
+                return Result.Fail<Sport>(BaseErrors.ObjectExists<Sport>());
             }
 
             sport = new Sport { SportName = sportName };

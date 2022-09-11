@@ -30,7 +30,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (result is null)
             {
-                return Result.Fail<TeamDto>(new InvalidObjectId(id).Message);
+                return Result.Fail<TeamDto>(BaseErrors.InvalidObjectId(id));
             }
 
             return Result.Ok(result);
@@ -54,7 +54,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (team is not null)
             {
-                return Result.Fail<TeamDto>(new ObjectExists<Team>().Message);
+                return Result.Fail<TeamDto>(BaseErrors.ObjectExists<Team>());
             }
 
             //team = new Team
@@ -78,7 +78,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<TeamDto>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<TeamDto>(BaseErrors.OperationFailed(ex));
             }
         }
 
@@ -93,7 +93,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var team = _repository.FindById(request.Id);
             if (team is null)
             {
-                return Result.Fail<TeamDto>(new ObjectNotFound<Team>().Message);
+                return Result.Fail<TeamDto>(BaseErrors.ObjectNotFound<Team>());
             }
 
             team = request.Adapt<Team>();
@@ -104,7 +104,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
             catch (Exception ex)
             {
-                return Result.Fail<TeamDto>(ex.InnerException?.Message ?? ex.Message);
+                return Result.Fail<TeamDto>(BaseErrors.OperationFailed(ex));
             }
         }
 
@@ -136,14 +136,14 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (league is null)
             {
-                return Result.Fail<ObjectId>(new ObjectNotFound<League>().Message);
+                return Result.Fail<ObjectId>(BaseErrors.ObjectNotFound<League>());
             }
 
             var id = sportId.ToObjectId();
 
             if (league.Sport.Id != id)
             {
-                return Result.Fail<ObjectId>(new ObjectNotFound<League>().Message);
+                return Result.Fail<ObjectId>(BaseErrors.ObjectNotFound<League>());
             }
 
             return Result.Ok(id);

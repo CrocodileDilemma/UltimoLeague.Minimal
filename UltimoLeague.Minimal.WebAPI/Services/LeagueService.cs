@@ -18,7 +18,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (sport is null)
             {
-                return Result.Fail<League>(new ObjectNotFound<Sport>().Message);
+                return Result.Fail<League>(BaseErrors.ObjectNotFound<Sport>());
             }
 
             var league = await Repository.FindOneAsync(x => x.Code == request.Code &&
@@ -26,7 +26,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (league is not null)
             {
-                return Result.Fail<League>(new ObjectExists<League>().Message);
+                return Result.Fail<League>(BaseErrors.ObjectExists<League>());
             }
 
             league = await Repository.FindOneAsync(x => x.Level == request.Level &&
@@ -34,7 +34,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (league is not null)
             {
-                return Result.Fail<League>(new ObjectExists<League>().Message);
+                return Result.Fail<League>(BaseErrors.ObjectExists<League>());
             }
 
             league = new League
