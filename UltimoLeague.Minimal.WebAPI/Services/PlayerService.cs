@@ -42,7 +42,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public IEnumerable<PlayerDto> GetByTeamId(string id)
         { 
-            var result = Queries.PlayerQuery(_repository, _teamRepository).Where(x => x.ActiveTeam.Id == id);
+            var result = Queries.PlayerQuery(_repository, _teamRepository).Where(x => x.ActiveTeam.TeamId == id);
             return result.AsEnumerable();
         }
 

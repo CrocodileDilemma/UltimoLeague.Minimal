@@ -34,14 +34,14 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public Result<IEnumerable<RegistrationDto>> GetByPlayerId(string id)
         {
-            var result = this.RegistratonQuery().Where(x => x.Player.Id == id).OrderByDescending(x => x.RegistrationDate);
+            var result = this.RegistratonQuery().Where(x => x.Player.PlayerId == id).OrderByDescending(x => x.RegistrationDate);
             return Result.Ok(result.Adapt<IEnumerable<RegistrationDto>>());
         }
 
         public Result<IEnumerable<RegistrationDto>> GetByTeamId(string id)
         {
-            var result = this.RegistratonQuery().Where(x => x.Team.Id == id || 
-                (x.PreviousTeam != null && x.PreviousTeam.Id == id)).OrderByDescending(x => x.RegistrationDate);
+            var result = this.RegistratonQuery().Where(x => x.Team.TeamId == id || 
+                (x.PreviousTeam != null && x.PreviousTeam.TeamId == id)).OrderByDescending(x => x.RegistrationDate);
             return Result.Ok(result.Adapt<IEnumerable<RegistrationDto>>());
         }
 
@@ -67,12 +67,13 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<RegistrationDto>(BaseErrors.ObjectNotFound<Team>());
             }
 
-            if (player.ActiveTeam?.Id == team.Id.ToString())
+            if (player.ActiveTeam?.TeamId == team.Id.ToString())
             {
                 return Result.Fail<RegistrationDto>(PlayerErrors.PlayerAlreadyRegistered(team.Code));
             }
 
-            var registration = (Generators.RegistrationNumber(), player, team).Adapt<Registration>();
+            string registrationNo = Generators.RegistrationNumber();
+            var registration = (registrationNo, player, team).Adapt<Registration>();
 
             Player p = player.Adapt<Player>();
             p.ActiveTeamId = team.Id;
@@ -106,19 +107,19 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                         RegistrationDate = r.RegistrationDate,
                         Player = new PlayerBaseDto
                         {
-                            Id = p.Id.ToString(),
+                            PlayerId = p.Id.ToString(),
                             FirstName = p.FirstName,
                             LastName = p.LastName
                         },
                         Team = new TeamBaseDto
                         {
-                            Id = t.Id.ToString(),
+                            TeamId = t.Id.ToString(),
                             Code = t.Code
                         },
                         PreviousTeam = subteam == null ? null :
                         new TeamBaseDto
                         {
-                            Id = subteam.Id.ToString(),
+                            TeamId = subteam.Id == default(ObjectId) ? "<None>" : subteam.Id.ToString(),
                             Code = subteam.Code
                         },
                     });

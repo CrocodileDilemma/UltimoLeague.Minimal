@@ -1,4 +1,7 @@
-﻿namespace UltimoLeague.Minimal.Contracts.Dtos
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Runtime.Serialization;
+
+namespace UltimoLeague.Minimal.Contracts.Dtos
 {
     public class RegistrationDto : BaseDto
     {

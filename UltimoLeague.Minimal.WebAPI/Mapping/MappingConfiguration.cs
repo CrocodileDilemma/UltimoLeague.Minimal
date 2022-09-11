@@ -21,16 +21,18 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
             config.NewConfig<PlayerUpdateRequest, Player>()
                 .IgnoreNullValues(true);
 
-            config.NewConfig<(string, Player, Team), Registration>()
+            config.NewConfig<(string, PlayerDto, Team), Registration>()
                .Map(dest => dest.RegistrationNumber, src => src.Item1)
                .Map(dest => dest.PlayerId, src => src.Item2.Id)
                .Map(dest => dest.TeamId, src => src.Item3.Id)
-               .Map(dest => dest.PreviousTeamId, src => src.Item2.ActiveTeamId);
+               .Map(dest => dest.PreviousTeamId, src => src.Item2.ActiveTeam.TeamId);
 
             config.NewConfig<(Registration, PlayerDto, Team), RegistrationDto>()
               .Map(dest => dest, src => src.Item1)
               .Map(dest => dest.Player, src => src.Item2)
+              .Map(dest => dest.Player.PlayerId, src => src.Item2.Id)
               .Map(dest => dest.Team, src => src.Item3)
+              .Map(dest => dest.Team.TeamId, src => src.Item3.Id)
               .Map(dest => dest.PreviousTeam, src => src.Item2.ActiveTeam);
 
             config.NewConfig<(SeasonRequest, League), Season>()

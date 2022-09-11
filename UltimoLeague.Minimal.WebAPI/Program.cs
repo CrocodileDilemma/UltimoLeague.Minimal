@@ -1,6 +1,6 @@
 global using FastEndpoints;
-global using Mapster;
 global using FluentResults;
+global using Mapster;
 global using UltimoLeague.Minimal.Contracts.Dtos;
 global using UltimoLeague.Minimal.Contracts.Requests;
 using FastEndpoints.Swagger;
@@ -8,9 +8,9 @@ using Microsoft.Extensions.Options;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.DAL.Repositories;
+using UltimoLeague.Minimal.WebAPI.Mapping;
 using UltimoLeague.Minimal.WebAPI.Services;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
-using UltimoLeague.Minimal.WebAPI.Mapping;
 
 namespace UltimoLeague.Minimal.WebAPI
 {
@@ -39,7 +39,7 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<SeasonService>();
             builder.Services.AddScoped<TeamService>();
             builder.Services.AddScoped<PlayerService>();
-            builder.Services.AddScoped<RegistrationService>();          
+            builder.Services.AddScoped<RegistrationService>();
 
             var app = builder.Build();
             app.UseAuthorization();

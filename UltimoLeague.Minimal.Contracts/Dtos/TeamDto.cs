@@ -1,12 +1,19 @@
-﻿namespace UltimoLeague.Minimal.Contracts.Dtos
+﻿using System.Text.Json.Serialization;
+using System.Xml.Linq;
+
+namespace UltimoLeague.Minimal.Contracts.Dtos
 {
-    public class TeamBaseDto : BaseDto
+    public class TeamBaseDto
     {
+        [JsonPropertyName("id")]
+        public string TeamId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Code { get; set; }
     }
 
-    public class TeamDto : TeamBaseDto
+    public class TeamDto : BaseDto
     {
+        public string Code { get; set; }
         public string Name { get; set; }
         public string ContactFirstName { get; set; }
         public string ContactLastName { get; set; }

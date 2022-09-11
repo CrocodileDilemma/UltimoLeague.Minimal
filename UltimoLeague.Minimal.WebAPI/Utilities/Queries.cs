@@ -1,4 +1,6 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using MongoDB.Bson;
+using System.Dynamic;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Utilities
@@ -27,7 +29,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                         new TeamBaseDto
                         {
                             Code = subteam.Code,
-                            Id = subteam.Id.ToString()
+                            TeamId = subteam.Id == default(ObjectId) ? "<None>" : subteam.Id.ToString()
                         }
                     });
         }

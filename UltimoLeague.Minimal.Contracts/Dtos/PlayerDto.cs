@@ -1,15 +1,20 @@
-﻿using UltimoLeague.Minimal.DAL.Common;
+﻿using System.Text.Json.Serialization;
+using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Dtos
 {
-    public class PlayerBaseDto : BaseDto
+    public class PlayerBaseDto
     {
+        [JsonPropertyName("id")]
+        public string PlayerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
     }
 
-    public class PlayerMinimalDto : PlayerBaseDto
+    public class PlayerMinimalDto : BaseDto
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string EmailAddress { get; set; }
         public string ContactNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
