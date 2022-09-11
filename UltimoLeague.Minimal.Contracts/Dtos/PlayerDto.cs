@@ -20,6 +20,6 @@ namespace UltimoLeague.Minimal.Contracts.Dtos
 
     public class PlayerDto : PlayerMinimalDto
     {
-        public TeamBaseDto ActiveTeam { get; set; }
+        public TeamBaseDto? ActiveTeam { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
-
-namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
+﻿namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
 {
     public interface ITeamService
     {

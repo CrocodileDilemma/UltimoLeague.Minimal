@@ -8,16 +8,16 @@ namespace UltimoLeague.Minimal.WebAPI.Services
     {
         public SportService(IMongoRepository<Sport> repository) : base(repository){}
 
-        public async Task<Result<Sport>> Post(string sportName)
+        public async Task<Result<Sport>> Post(SportRequest request)
         {
-            var sport = await Repository.FindOneAsync(x => x.SportName == sportName);
+            var sport = await Repository.FindOneAsync(x => x.SportName == request.SportName);
 
             if (sport is not null)
             {
                 return Result.Fail<Sport>(BaseErrors.ObjectExists<Sport>());
             }
 
-            sport = new Sport { SportName = sportName };
+            sport = request.Adapt<Sport>();
 
             return await base.Post(sport);          
         }

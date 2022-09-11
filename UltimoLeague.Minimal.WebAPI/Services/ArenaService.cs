@@ -9,16 +9,16 @@ namespace UltimoLeague.Minimal.WebAPI.Services
     {
         public ArenaService(IMongoRepository<Arena> repository) : base(repository) { }
 
-        public async Task<Result<Arena>> Post(string arenaName)
+        public async Task<Result<Arena>> Post(ArenaRequest request)
         {
-            var arena = await Repository.FindOneAsync(x => x.ArenaName == arenaName);
+            var arena = await Repository.FindOneAsync(x => x.ArenaName == request.ArenaName);
 
             if (arena is not null)
             {
                 return Result.Fail<Arena>(BaseErrors.ObjectExists<Arena>());
             }
 
-            arena = new Arena { ArenaName = arenaName };
+            arena = request.Adapt<Arena>();
 
             return await base.Post(arena);
         }

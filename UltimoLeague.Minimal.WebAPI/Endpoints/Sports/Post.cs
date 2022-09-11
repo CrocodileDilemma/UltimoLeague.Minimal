@@ -14,7 +14,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
 
         public override async Task HandleAsync(SportRequest request, CancellationToken ct)
         {
-            Result<Sport> result = await _service.Post(request.SportName);
+            Result<Sport> result = await _service.Post(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

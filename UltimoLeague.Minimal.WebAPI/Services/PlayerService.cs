@@ -18,7 +18,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
         }
         public Result<PlayerDto> GetById(string id)
         {
-            var result = this.PlayerQuery().FirstOrDefault(x => x.Id == id);
+            var result = Queries.PlayerQuery(_repository, _teamRepository).FirstOrDefault(x => x.Id == id);
 
             if (result is null)
             {
@@ -30,7 +30,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public Result<PlayerDto> GetByMembershipNo(string membershipNo)
         {
-            var result = this.PlayerQuery().FirstOrDefault(x => x.MembershipNumber == membershipNo);
+            var result = Queries.PlayerQuery(_repository, _teamRepository).FirstOrDefault(x => x.MembershipNumber == membershipNo);
 
             if (result is null)
             {
@@ -42,7 +42,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public IEnumerable<PlayerDto> GetByTeamId(string id)
         { 
-            var result = this.PlayerQuery().Where(x => x.ActiveTeam.Id == id);
+            var result = Queries.PlayerQuery(_repository, _teamRepository).Where(x => x.ActiveTeam.Id == id);
             return result.AsEnumerable();
         }
 
@@ -81,30 +81,6 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             {
                 return Result.Fail<PlayerMinimalDto>(BaseErrors.OperationFailed(ex));
             }
-        }
-
-        private IQueryable<PlayerDto> PlayerQuery()
-        {
-            return (from p in _repository.AsQueryable()
-                    join t in _teamRepository.AsQueryable()
-                    on p.ActiveTeamId equals t.Id
-                    select new PlayerDto
-                    {
-                        Id = p.Id.ToString(),
-                        FirstName = p.FirstName,
-                        LastName = p.LastName,
-                        Active = p.Active,
-                        EmailAddress = p.EmailAddress,
-                        ContactNumber = p.ContactNumber,
-                        DateOfBirth = p.DateOfBirth,
-                        Gender = p.Gender,
-                        MembershipNumber = p.MembershipNumber,
-                        ActiveTeam = new TeamBaseDto
-                        {
-                            Id = t.Id.ToString(),
-                            Code = t.Code
-                        }
-                    });
         }
     }
 }

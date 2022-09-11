@@ -11,5 +11,6 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public ObjectId TeamId { get; set; }
         public ObjectId PreviousTeamId { get; set; }
         public string RegistrationNumber { get; set; }
+        public DateTime RegistrationDate { get; set; }
     }
 }

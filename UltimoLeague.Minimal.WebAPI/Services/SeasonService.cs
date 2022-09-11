@@ -32,13 +32,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<Season>(BaseErrors.ObjectExists<Season>());
             }
 
-            var season = new Season
-            {
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                NoOfMatches = request.NoOfMatches,
-                LeagueId = league.Id
-            };
+            var season = (request, league).Adapt<Season>();
 
             return await base.Post(season);
         }

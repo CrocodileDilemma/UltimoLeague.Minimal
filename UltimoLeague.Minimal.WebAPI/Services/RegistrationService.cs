@@ -29,7 +29,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<RegistrationDto>(BaseErrors.InvalidObjectId(id));
             }
 
-            return Result.Ok<RegistrationDto>(result);
+            return Result.Ok(result);
         }
 
         public Result<IEnumerable<RegistrationDto>> GetByPlayerId(string id)
@@ -45,51 +45,47 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             return Result.Ok(result.Adapt<IEnumerable<RegistrationDto>>());
         }
 
-        public async Task<Result<Registration>> Post(RegistrationRequest request)
+        public async Task<Result<RegistrationDto>> Post(RegistrationRequest request)
         {
-            var player = await _playerRepository.FindByIdAsync(request.PlayerId);
+            var playerQuery = Queries.PlayerQuery(_playerRepository, _teamRepository);
+            var player = playerQuery.FirstOrDefault(x => x.Id == request.PlayerId);
 
             if (player is null)
             {
-                return Result.Fail<Registration>(BaseErrors.ObjectNotFound<Player>());
+                return Result.Fail<RegistrationDto>(BaseErrors.ObjectNotFound<Player>());
             }
 
             if (!player.Active)
             {
-                return Result.Fail<Registration>(PlayerErrors.PlayerInactive());
+                return Result.Fail<RegistrationDto>(PlayerErrors.PlayerInactive());
             }
 
             var team = await _teamRepository.FindByIdAsync(request.TeamId);
 
             if (team is null)
             {
-                return Result.Fail<Registration>(BaseErrors.ObjectNotFound<Team>());
+                return Result.Fail<RegistrationDto>(BaseErrors.ObjectNotFound<Team>());
             }
 
-            if (player.ActiveTeamId == team.Id)
+            if (player.ActiveTeam?.Id == team.Id.ToString())
             {
-                return Result.Fail<Registration>(PlayerErrors.PlayerAlreadyRegistered(team.Code));
+                return Result.Fail<RegistrationDto>(PlayerErrors.PlayerAlreadyRegistered(team.Code));
             }
 
-            var registration = new Registration 
-            { 
-                RegistrationNumber = Generators.RegistrationNumber(),
-                PlayerId = player.Id, 
-                TeamId = team.Id,
-                PreviousTeamId = player.ActiveTeamId
-            };
+            var registration = (Generators.RegistrationNumber(), player, team).Adapt<Registration>();
 
-            player.ActiveTeamId = team.Id;
+            Player p = player.Adapt<Player>();
+            p.ActiveTeamId = team.Id;
 
             try
             {
-                await _playerRepository.ReplaceOneAsync(player);
+                await _playerRepository.ReplaceOneAsync(p);
                 await _repository.InsertOneAsync(registration);
-                return Result.Ok<Registration>(registration);
+                return Result.Ok((registration, player, team).Adapt<RegistrationDto>());
             }
             catch (Exception ex)
             {
-                return Result.Fail<Registration>(BaseErrors.OperationFailed(ex));
+                return Result.Fail<RegistrationDto>(BaseErrors.OperationFailed(ex));
             }
         }
 
@@ -107,7 +103,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                     {
                         Id = r.Id.ToString(),
                         RegistrationNumber = r.RegistrationNumber,
-                        RegistrationDate = r.CreatedAt.Date,
+                        RegistrationDate = r.RegistrationDate,
                         Player = new PlayerBaseDto
                         {
                             Id = p.Id.ToString(),
@@ -116,11 +112,13 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                         },
                         Team = new TeamBaseDto
                         {
+                            Id = t.Id.ToString(),
                             Code = t.Code
                         },
                         PreviousTeam = subteam == null ? null :
                         new TeamBaseDto
                         {
+                            Id = subteam.Id.ToString(),
                             Code = subteam.Code
                         },
                     });

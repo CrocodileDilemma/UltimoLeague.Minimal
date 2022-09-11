@@ -37,14 +37,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<League>(BaseErrors.ObjectExists<League>());
             }
 
-            league = new League
-            {
-                Sport = sport,
-                Code = request.Code,
-                Level = request.Level,
-                Gender = request.Gender,
-                Name = request.Name
-            };
+            league = (request, sport).Adapt<League>();
 
             return await base.Post(league);
         }

@@ -1,7 +1,5 @@
-﻿using FluentResults;
-using MongoDB.Driver.Linq;
+﻿using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
-using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
