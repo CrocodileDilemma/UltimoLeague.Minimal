@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.DAL.Repositories;
+using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Mapping;
 using UltimoLeague.Minimal.WebAPI.Services;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
@@ -42,6 +43,7 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<RegistrationService>();
 
             var app = builder.Build();
+            app.UseErrorExceptionHandler();
             app.UseAuthorization();
             app.UseFastEndpoints(c =>
             {
@@ -54,8 +56,7 @@ namespace UltimoLeague.Minimal.WebAPI
             app.UseOpenApi();
             app.UseSwaggerUi3(s => s.ConfigureDefaults());
             app.UseHttpsRedirection();
-            app.UseDefaultExceptionHandler();
-
+            
             app.Run();
         }
     }
