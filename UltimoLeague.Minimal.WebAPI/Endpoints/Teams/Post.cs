@@ -1,7 +1,6 @@
-﻿using UltimoLeague.Minimal.WebAPI.Endpoints.Teams;
-using UltimoLeague.Minimal.WebAPI.Services;
+﻿using UltimoLeague.Minimal.WebAPI.Services;
 
-namespace UltimoTeam.Minimal.WebAPI.Endpoints.Teams
+namespace UltimoLeague.Minimal.WebAPI.Endpoints.Teams
 {
     [HttpPost("teams")]
     public class Post : Endpoint<TeamRequest, TeamDto>

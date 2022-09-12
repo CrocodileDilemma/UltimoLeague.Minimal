@@ -25,8 +25,9 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddSwaggerDoc(settings =>
             {
                 settings.Title = "Ultimo League API";
-                settings.Version = "v1";
-                settings.DocumentName = "Release 1.0";
+                settings.Version = "v.1.0";
+                settings.DocumentName = "Ultimo League API v.1.0";
+                settings.UseControllerSummaryAsTagDescription = true;
             }, addJWTBearerAuth: false);
 
             builder.Services.AddMappings();

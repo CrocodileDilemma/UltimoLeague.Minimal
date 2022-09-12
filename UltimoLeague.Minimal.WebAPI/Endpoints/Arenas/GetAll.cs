@@ -1,4 +1,5 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using System.ComponentModel;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Arenas
