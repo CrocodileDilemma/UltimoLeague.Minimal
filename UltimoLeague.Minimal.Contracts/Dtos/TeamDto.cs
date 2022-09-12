@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace UltimoLeague.Minimal.Contracts.Dtos
 {

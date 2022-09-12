@@ -1,5 +1,4 @@
-﻿using FluentResults;
-using UltimoLeague.Minimal.DAL.Entities;
+﻿using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 

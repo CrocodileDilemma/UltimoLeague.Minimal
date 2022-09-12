@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MongoDB.Bson.IO;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 
 namespace UltimoLeague.Minimal.WebAPI.Errors

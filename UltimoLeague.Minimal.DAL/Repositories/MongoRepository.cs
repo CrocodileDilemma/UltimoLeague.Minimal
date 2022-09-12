@@ -1,16 +1,8 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using UltimoLeague.Minimal.DAL.Common;
-using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 
 namespace UltimoLeague.Minimal.DAL.Repositories

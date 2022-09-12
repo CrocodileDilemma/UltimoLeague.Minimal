@@ -1,6 +1,4 @@
 ﻿using MongoDB.Bson;
-using System.Runtime.CompilerServices;
-using UltimoLeague.Minimal.DAL.Entities;
 
 namespace UltimoLeague.Minimal.WebAPI.Mapping
 {

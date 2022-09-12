@@ -1,5 +1,4 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
-using UltimoLeague.Minimal.WebAPI.Services;
+﻿using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
 {

@@ -1,9 +1,4 @@
-﻿using Mapster;
-using MongoDB.Bson;
-using Namotion.Reflection;
-using SharpCompress.Common;
-using System.Numerics;
-using UltimoLeague.Minimal.DAL.Entities;
+﻿using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Mapping;

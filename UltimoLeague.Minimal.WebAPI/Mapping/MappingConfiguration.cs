@@ -1,10 +1,4 @@
-﻿using FluentResults;
-using Mapster;
-using MongoDB.Bson;
-using System.Numerics;
-using UltimoLeague.Minimal.Contracts.Requests;
-using UltimoLeague.Minimal.DAL.Entities;
-using UltimoLeague.Minimal.WebAPI.Utilities;
+﻿using UltimoLeague.Minimal.DAL.Entities;
 
 namespace UltimoLeague.Minimal.WebAPI.Mapping
 {

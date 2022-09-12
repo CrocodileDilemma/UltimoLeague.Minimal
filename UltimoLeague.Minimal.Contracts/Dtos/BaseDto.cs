@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-
-namespace UltimoLeague.Minimal.Contracts.Dtos
+﻿namespace UltimoLeague.Minimal.Contracts.Dtos
 {
     public class BaseDto
     {

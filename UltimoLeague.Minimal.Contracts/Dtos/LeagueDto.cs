@@ -1,7 +1,4 @@
-﻿
-using MongoDB.Bson.Serialization.Attributes;
-using System.Runtime.Serialization;
-using UltimoLeague.Minimal.DAL.Common;
+﻿using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Dtos
 {

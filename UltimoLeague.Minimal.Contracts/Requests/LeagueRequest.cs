@@ -1,5 +1,4 @@
-﻿
-using UltimoLeague.Minimal.DAL.Common;
+﻿using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Requests
 {

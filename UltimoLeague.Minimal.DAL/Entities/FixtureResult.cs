@@ -1,5 +1,4 @@
 ﻿using MongoDB.Bson;
-using MongoDB.Driver;
 using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.DAL.Entities
