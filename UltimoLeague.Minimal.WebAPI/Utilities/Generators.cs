@@ -7,6 +7,7 @@ using UltimoLeague.Minimal.Contracts.Requests;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.WebAPI.Mapping;
+using YamlDotNet.Core.Tokens;
 
 namespace UltimoLeague.Minimal.WebAPI.Utilities
 {
@@ -50,14 +51,14 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
 
         internal static List<TimeOnly> GetFixturesPerDay(Sport sport, TimeOnly startTime, TimeOnly endTime)
         {
-            int totalFixtureDuration = sport.Duration + sport.Leeway;
+            int totalFixtureDuration = 90;// sport.Duration + sport.Leeway;
             List<TimeOnly> result = new();
             TimeOnly fixtureTime = startTime;
 
             while (fixtureTime <= endTime)
             {
                 result.Add(fixtureTime);
-                fixtureTime.AddMinutes(totalFixtureDuration);
+                fixtureTime = fixtureTime.AddMinutes(totalFixtureDuration);
             }
 
             return result;
@@ -67,7 +68,15 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             IQueryable<Arena> arenas, SeasonRequest request, List<TimeOnly> fixtureTimes, ObjectId seasonId)
         {
             List<Fixture> result = new List<Fixture>();
-            List<DateTime> fixtureDays = InitializeFixtureDays(request.StartDate, request.MatchDays);
+
+            List<Days> matchDays = new List<Days>();
+            foreach (int day in request.MatchDays)
+            {
+                matchDays.Add((Days)day);
+            }
+
+            
+            List<DateTime> fixtureDays = InitializeFixtureDays(request.StartDate, matchDays);
 
             var initialFixtureDetails = (from d in fixtureDays
                                               from t in fixtureTimes
@@ -79,7 +88,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                                                   ArenaId = a.Id,
                                               }).ToList();
 
-          
+
             for (int matchNo = 0; matchNo < request.NoOfMatches; matchNo++)
             {
                 var teams = initialTeams.Select(x => new TeamBaseDto
@@ -124,6 +133,13 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                         teams[i - 1] = teams[i];
                         teams[i] = tempTeam;
                     }
+
+                    initialFixtureDetails = initialFixtureDetails.Select(x => new
+                    {
+                        FixtureDay = x.FixtureDay.AddDays(7),
+                        FixtureTime = x.FixtureTime,
+                        ArenaId = x.ArenaId
+                    }).ToList();
                 }
             }
 

@@ -40,11 +40,11 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
 
             RuleFor(x => x.MatchDays)
                 .NotEmpty()
-                .WithMessage("Match Days are required!")
-                .Must((model, field) => StartOnStartDate(model.StartDate, field))
-                .WithMessage("Season Start Date must be the first Match Day!")
-                .Must((field) => StartOnSunday(field))
-                .WithMessage("Season cannot Start on a Sunday!");
+                .WithMessage("Match Days are required!");
+                ////.Must((model, field) => StartOnStartDate(model.StartDate, field))
+                ////.WithMessage("Season Start Date must be the first Match Day!")
+                ////.Must((field) => StartOnSunday(field))
+                ////.WithMessage("Season cannot Start on a Sunday!");
             //.IsInEnum<Days>()
             //.WithMessage("Match Days must be valid Days!");
 

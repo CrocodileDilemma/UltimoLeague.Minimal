@@ -9,9 +9,8 @@ namespace UltimoLeague.Minimal.Contracts.Requests
         public DateTime EndDate { get; set; }
         public string LeagueId { get; set; }
         public int NoOfMatches { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public List<Days> MatchDays { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }    
+        public List<int> MatchDays { get; set; }
     }
 }

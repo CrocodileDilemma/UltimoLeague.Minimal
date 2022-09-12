@@ -1,4 +1,7 @@
-﻿namespace UltimoLeague.Minimal.DAL.Common
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
+
+namespace UltimoLeague.Minimal.DAL.Common
 {
     public enum Gender
     {
@@ -31,17 +34,26 @@
         Pass = 9
     }
 
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Days
     {
-        Monday = 0,
-        Tuesday = 1,
-        Wednesday = 2,
-        Thursday = 3,
-        Friday = 4,
-        Saturday = 5,
-        Sunday = 6
+        [EnumMember(Value = "Monday")]
+        Monday = 1,
+        [EnumMember(Value = "Tuesday")]
+        Tuesday = 2,
+        [EnumMember(Value = "Wednesday")]
+        Wednesday = 3,
+        [EnumMember(Value = "Thursday")]
+        Thursday = 4,
+        [EnumMember(Value = "Friday")]
+        Friday = 5,
+        [EnumMember(Value = "Saturday")]
+        Saturday = 6,
+        [EnumMember(Value = "Sunday")]
+        Sunday = 7
     }
-    
+
     public enum FixtureStatus
     {
         Scheduled = 0,

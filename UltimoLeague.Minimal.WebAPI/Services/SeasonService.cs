@@ -49,7 +49,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var arenas = _arenaRepository.AsQueryable();
             
             // get number of fixtures allowed per day and for each week
-            List<TimeOnly> fixturesPerDay = Generators.GetFixturesPerDay(league.Sport, request.StartTime, request.EndTime);
+            List<TimeOnly> fixturesPerDay = Generators.GetFixturesPerDay(league.Sport, TimeOnly.Parse(request.StartTime), TimeOnly.Parse(request.EndTime));
             int fixturesPerWeek = request.MatchDays.Count * fixturesPerDay.Count * arenas.Count();
 
             // determine how many fixtures are required per week.
@@ -59,6 +59,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             {
                 teams.Add(Generators.ByeFixture());
             }
+
             // randomise the teams
             teams.Shuffle();
 

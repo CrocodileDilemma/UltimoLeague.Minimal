@@ -41,4 +41,14 @@ namespace UltimoLeague.Minimal.WebAPI.Summaries.Sports
             Response<SportDto>(200, "ok response with body");
         }
     }
+
+    public class PutSummary : Summary<Put>
+    {
+        public PutSummary()
+        {
+            Summary = "Update an existing Sport";
+            Description = "Update an existing Sport record.";
+            Response<PlayerDto>(200, "ok response with body");
+        }
+    }
 }

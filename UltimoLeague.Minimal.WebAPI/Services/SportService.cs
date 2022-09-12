@@ -1,4 +1,5 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using System.Numerics;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 
@@ -20,6 +21,20 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             sport = request.Adapt<Sport>();
 
             return await base.Post(sport);          
+        }
+
+        public async Task<Result<Sport>> Update(SportUpdateRequest request)
+        {
+            var sport = await Repository.FindByIdAsync(request.Id);
+
+            if (sport is null)
+            {
+                return Result.Fail<Sport>(BaseErrors.ObjectNotFoundWithId<Sport>(request.Id));
+            }
+
+            request.Adapt(sport);
+
+            return await base.Update(sport);
         }
     }
 }
