@@ -7,13 +7,14 @@
         Female = 2
     }
 
-    public enum WinLossDraw
+    public enum FixtureResultStatus
     {
-        Nonoe = 0,
+        None = 0,
         Win = 1,
         Loss = 2,
         Draw = 3,
-        Forfeit =43
+        Forfeit = 4,
+        Bye = 5
     }
 
     public enum StatisticEvent
@@ -30,4 +31,20 @@
         Pass = 9
     }
 
+    public enum Days
+    {
+        Monday = 0,
+        Tuesday = 1,
+        Wednesday = 2,
+        Thursday = 3,
+        Friday = 4,
+        Saturday = 5,
+        Sunday = 6
+    }
+    
+    public enum FixtureStatus
+    {
+        Scheduled = 0,
+        Completed = 1,
+    }
 }

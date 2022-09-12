@@ -9,6 +9,6 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public ObjectId FixtureId { get; set; }
         public ObjectId TeamId { get; set; }
         public int Score { get; set; }
-        public WinLossDraw Result { get; set; }
+        public FixtureResultStatus Result { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Routing.Constraints;
+using MongoDB.Bson;
+using UltimoLeague.Minimal.DAL.Entities;
 
 namespace UltimoLeague.Minimal.WebAPI.Mapping
 {
@@ -29,9 +31,10 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
               .Map(dest => dest.Team.TeamId, src => src.Item3.Id)
               .Map(dest => dest.PreviousTeam, src => src.Item2.ActiveTeam);
 
-            config.NewConfig<(SeasonRequest, League), Season>()
+            config.NewConfig<(SeasonRequest, ObjectId, ObjectId), Season>()
             .Map(dest => dest, src => src.Item1)
-            .Map(dest => dest.LeagueId, src => src.Item2.Id);
+            .Map(dest => dest.LeagueId, src => src.Item2)
+            .Map(dest => dest.Id, src => src.Item3);
 
             config.NewConfig<SportRequest, Sport>();
 

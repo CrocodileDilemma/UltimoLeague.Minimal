@@ -1,4 +1,5 @@
-﻿using UltimoLeague.Minimal.DAL.Common;
+﻿using System.Text.Json.Serialization;
+using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Requests
 {
@@ -9,6 +10,7 @@ namespace UltimoLeague.Minimal.Contracts.Requests
         public string? EmailAddress { get; set; }
         public string? ContactNumber { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Gender Gender { get; set; } = Gender.None;
         public bool? Active { get; set; }
     }

@@ -6,5 +6,7 @@ namespace UltimoLeague.Minimal.DAL.Entities
     public class Sport : BaseEntity
     {
         public string SportName { get; set; }
+        public int Duration { get; set; }
+        public int Leeway { get; set; }
     }
 }
