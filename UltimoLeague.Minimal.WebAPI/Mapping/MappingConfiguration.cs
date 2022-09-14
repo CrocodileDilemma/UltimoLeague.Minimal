@@ -17,21 +17,22 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
 
             config.NewConfig<League, LeagueDto>()
                 .Map(dest => dest, src => src)
-                .Map(dest => dest.Sport, src => src.Sport)
-                .Map(dest => dest.Sport.Id, src => src.Sport.BaseId);
+                .Map(dest => dest.Sport, src => src.Sport.Adapt<SportMinimalDto>());
+
+            config.NewConfig<LeagueMinimal, LeagueMinimalDto>()
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.Id, src => src.BaseId);
 
             config.NewConfig<(LeagueRequest, Sport), League>()
                 .Map(dest => dest, src => src.Item1)
-                .Map(dest => dest.Sport, src => src.Item2)
-                .Map(dest => dest.Sport.BaseId, src => src.Item2.Id);
+                .Map(dest => dest.Sport, src => src.Item2.Adapt<SportMinimal>());
 
             config.NewConfig<PlayerUpdateRequest, Player>()
                 .IgnoreNullValues(true);
 
             config.NewConfig<Player, PlayerDto>()
                 .Map(dest => dest, src => src)
-                .Map(dest => dest.ActiveTeam, src => src.ActiveTeam)
-                .Map(dest => dest.ActiveTeam.Id, src => src.ActiveTeam.BaseId);
+                .Map(dest => dest.ActiveTeam, src => src.ActiveTeam.Adapt<TeamMinimalDto>());
 
             config.NewConfig<Player, PlayerMinimalDto>()
                .Map(dest => dest, src => src)
@@ -41,6 +42,10 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
               .Map(dest => dest.BaseId, src => src.Id)
               .Map(dest => dest.PlayerName, src => $"{src.FirstName} {src.LastName}");
 
+            config.NewConfig<PlayerMinimal, PlayerMinimalDto>()
+              .Map(dest => dest, src => src)
+              .Map(dest => dest.Id, src => src.BaseId);
+
             config.NewConfig<(string, Player, Team), Registration>()
                .Map(dest => dest.RegistrationNumber, src => src.Item1)
                .Map(dest => dest.Player, src => src.Item2.Adapt<PlayerMinimal>())
@@ -49,12 +54,9 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
 
             config.NewConfig<Registration, RegistrationDto>()
               .Map(dest => dest, src => src)
-              .Map(dest => dest.Player, src => src.Player)
-              .Map(dest => dest.Player.Id, src => src.Player.BaseId)
-              .Map(dest => dest.Team, src => src.Team)
-              .Map(dest => dest.Team.Id, src => src.Team.BaseId)
-              .Map(dest => dest.PreviousTeam, src => src.PreviousTeam)
-              .Map(dest => dest.PreviousTeam.Id, src => src.PreviousTeam.BaseId);
+              .Map(dest => dest.Player, src => src.Player.Adapt<PlayerMinimalDto>())
+              .Map(dest => dest.Team, src => src.Team.Adapt<TeamMinimalDto>())
+              .Map(dest => dest.PreviousTeam, src => src.PreviousTeam.Adapt<TeamMinimalDto>());
 
             config.NewConfig<(SeasonRequest, LeagueMinimal, ObjectId), Season>()
                 .Map(dest => dest, src => src.Item1)
@@ -63,8 +65,15 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
 
             config.NewConfig<Season, SeasonBaseDto>()
                 .Map(dest => dest, src => src)
-                .Map(dest => dest.League, src => src.League)
-                .Map(dest => dest.League.Id, src => src.League.BaseId);
+                .Map(dest => dest.League, src => src.League.Adapt<LeagueMinimalDto>());
+
+            config.NewConfig<Sport, SportMinimal>()
+              .Map(dest => dest, src => src)
+              .Map(dest => dest.BaseId, src => src.Id);
+
+            config.NewConfig<SportMinimal, SportMinimalDto>()
+              .Map(dest => dest, src => src)
+              .Map(dest => dest.Id, src => src.BaseId);
 
             config.NewConfig<SportRequest, Sport>();
 
@@ -78,31 +87,27 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
 
             config.NewConfig<Team, TeamDto>()
                 .Map(dest => dest, src => src)
-                .Map(dest => dest.League, src => src.League)
-                .Map(dest => dest.League.Id, src => src.League.BaseId);
+                .Map(dest => dest.League, src => src.League.Adapt<LeagueMinimalDto>());
 
             config.NewConfig<Team, TeamMinimal>()
                 .Map(dest => dest, src => src)
                 .Map(dest => dest.BaseId, src => src.Id);
 
-            config.NewConfig<Team, TeamMinimal>()
+            config.NewConfig<TeamMinimal, TeamMinimalDto>()
                 .Map(dest => dest, src => src)
-                .Map(dest => dest.BaseId, src => src.Id);
+                .Map(dest => dest.Id, src => src.BaseId);
+
 
             config.NewConfig<(TeamRequest, League), Team>()
                 .Map(dest => dest, src => src.Item1)
-                .Map(dest => dest.League, src => src.Item2)
-                .Map(dest => dest.League.BaseId, src => src.Item2.Id)
-                .Map(dest => dest.Sport, src => src.Item2.Sport)
-                .Map(dest => dest.Sport.BaseId, src => src.Item2.Sport.BaseId);
+                .Map(dest => dest.League, src => src.Item2.Adapt<LeagueMinimal>())
+                .Map(dest => dest.Sport, src => src.Item2.Sport);
 
             config.NewConfig<(TeamUpdateRequest, League), Team>()
                 .IgnoreNullValues(true)
                 .Map(dest => dest, src => src.Item1)
-                .Map(dest => dest.League, src => src.Item2)
-                .Map(dest => dest.League.BaseId, src => src.Item2.Id)
-                .Map(dest => dest.Sport, src => src.Item2.Sport)
-                .Map(dest => dest.Sport.BaseId, src => src.Item2.Sport.BaseId);
+                .Map(dest => dest.League, src => src.Item2.Adapt<LeagueMinimal>())
+                .Map(dest => dest.Sport, src => src.Item2.Sport);
         }
     }
 }
