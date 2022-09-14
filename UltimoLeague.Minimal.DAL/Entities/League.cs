@@ -9,6 +9,11 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public string Name { get; set; }
         public int Level { get; set; }
         public Gender Gender { get; set; }
-        public Sport Sport { get; set; }
+        public SportMinimal Sport { get; set; }
+    }
+
+    public class LeagueMinimal : BaseMinimalEntity
+    {
+        public string Code { get; set; }
     }
 }

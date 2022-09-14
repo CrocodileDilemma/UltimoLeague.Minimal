@@ -8,10 +8,10 @@ namespace UltimoLeague.Minimal.DAL.Entities
     {
         public DateTime StartDate { get; set;}
         public DateTime EndDate { get; set; }
-        public ObjectId LeagueId{ get; set;}
+        public LeagueMinimal League { get; set;}
         public int NoOfMatches { get; set; }
-        public ObjectId WinnerId { get; set; }
-        public ObjectId RunnerUpId { get; set; }
-        public ObjectId MVPId { get; set; }
+        public TeamMinimal WinningTeam { get; set; }
+        public TeamMinimal RunnerUpTeam { get; set; }
+        public PlayerMinimal MVP { get; set; }
     }
 }

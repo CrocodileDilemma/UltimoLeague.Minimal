@@ -19,6 +19,10 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
             RuleFor(x => x.Leeway)
                 .GreaterThan(0)
                 .WithMessage("Sport must have a leeway!");
+
+            RuleFor(x => x.PointsForWin)
+                .GreaterThan(0)
+                .WithMessage("Sport must have a Points for Win value!");
         }
     }
 }

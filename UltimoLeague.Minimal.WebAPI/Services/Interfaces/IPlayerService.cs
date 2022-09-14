@@ -1,11 +1,13 @@
-﻿namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
 {
     public interface IPlayerService
     {
-        Result<PlayerDto> GetById(string id);
-        Result<PlayerDto> GetByMembershipNo(string membershipNo);
+        Task<Result<PlayerDto>> GetById(string id);
+        Task<Result<PlayerDto>> GetByMembershipNo(string membershipNo);
         IEnumerable<PlayerDto> GetByTeamId(string id);
-        Task<Result<PlayerMinimalDto>> Post(PlayerRequest request);
-        Task<Result<PlayerMinimalDto>> Update(PlayerUpdateRequest request);
+        Task<Result<PlayerDto>> Post(PlayerRequest request);
+        Task<Result<PlayerDto>> Update(PlayerUpdateRequest request);
     }
 }

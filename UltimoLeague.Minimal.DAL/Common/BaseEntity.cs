@@ -8,4 +8,9 @@ namespace UltimoLeague.Minimal.DAL.Common
         public ObjectId Id { get; set; }
         public DateTime CreatedAt => Id.CreationTime;
     }
+
+    public abstract class BaseMinimalEntity : IBaseMinimalEntity
+    {
+        public ObjectId BaseId { get; set; }
+    }
 }

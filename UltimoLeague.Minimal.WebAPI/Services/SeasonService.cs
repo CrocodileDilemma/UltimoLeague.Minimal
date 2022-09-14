@@ -4,52 +4,67 @@ using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Mapping;
+using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Utilities;
 
 namespace UltimoLeague.Minimal.WebAPI.Services
 {
-    public class SeasonService : BaseService<Season>
+    public class SeasonService : ISeasonService
     {
+        private readonly IMongoRepository<Season> _repository;
         private readonly IMongoRepository<Team> _teamRepository;
         private readonly IMongoRepository<Arena> _arenaRepository;
         private readonly IMongoRepository<League> _leagueRepository;
-        public SeasonService(IMongoRepository<Season> repository, IMongoRepository<Team> teamRepository, 
-            IMongoRepository<Arena> arenaRepository, IMongoRepository<League> leagueRepository) : base(repository)
+        private readonly IMongoRepository<Sport> _sportRepository;
+        private readonly IMongoRepository<Fixture> _fixtureRepository;
+
+        public SeasonService(IMongoRepository<Season> repository, IMongoRepository<Team> teamRepository,
+            IMongoRepository<Arena> arenaRepository, IMongoRepository<League> leagueRepository,
+            IMongoRepository<Sport> sportRepository, IMongoRepository<Fixture> fixtureRepository)
         {
+            _repository = repository;
             _teamRepository = teamRepository;
             _arenaRepository = arenaRepository;
             _leagueRepository = leagueRepository;
+            _sportRepository = sportRepository;
+            _fixtureRepository = fixtureRepository;
         }
 
-        public async Task<Result<Season>> Post(SeasonRequest request)
+        public async Task<Result<SeasonBaseDto>> Post(SeasonRequest request)
         {
             var league = await _leagueRepository.FindByIdAsync(request.LeagueId);
             if (league is null)
             {
-                return Result.Fail<Season>(BaseErrors.ObjectNotFoundWithId<League>(request.LeagueId));
+                return Result.Fail<SeasonBaseDto>(BaseErrors.ObjectNotFoundWithId<League>(request.LeagueId));
             }
 
-            var teams = _teamRepository.FilterBy(x => x.LeagueId == league.Id)
-                .Select(x => new TeamBaseDto { TeamId = x.Id.ToString(), Code = x.Code })
+            var sport = await _sportRepository.FindByIdAsync(league.Sport.BaseId.ToString());
+            if (sport is null)
+            {
+                return Result.Fail<SeasonBaseDto>(BaseErrors.ObjectNotFoundWithId<Sport>(league.Sport.BaseId.ToString()));
+            }
+
+            var teams = _teamRepository.FilterBy(x => x.League.BaseId == league.Id)
+                .Select(x => new TeamMinimal { BaseId = x.Id, Code = x.Code })
                 .ToList();
 
             if (!teams.Any())
             {
-                return Result.Fail<Season>(TeamErrors.InvalidLeague(request.LeagueId));
+                return Result.Fail<SeasonBaseDto>(TeamErrors.InvalidLeague(request.LeagueId));
             }
 
-            var seasons = Repository.FilterBy(x => x.LeagueId == league.Id && x.StartDate <= request.EndDate
+            var seasons = _repository.FilterBy(x => x.League.BaseId == league.Id && x.StartDate <= request.EndDate
                 && x.EndDate >= request.StartDate);
 
             if (seasons.Any())
             {
-                return Result.Fail<Season>(BaseErrors.ObjectExists<Season>());
+                return Result.Fail<SeasonBaseDto>(BaseErrors.ObjectExists<Season>());
             }
 
             var arenas = _arenaRepository.AsQueryable();
-            
+
             // get number of fixtures allowed per day and for each week
-            List<TimeOnly> fixturesPerDay = Generators.GetFixturesPerDay(league.Sport, TimeOnly.Parse(request.StartTime), TimeOnly.Parse(request.EndTime));
+            List<TimeOnly> fixturesPerDay = Generators.GetFixturesPerDay(sport, TimeOnly.Parse(request.StartTime), TimeOnly.Parse(request.EndTime));
             int fixturesPerWeek = request.MatchDays.Count * fixturesPerDay.Count * arenas.Count();
 
             // determine how many fixtures are required per week.
@@ -66,13 +81,23 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             // if there are more fixtures required per week than available, the season parameters are unacceptable
             if (teamFixtures > fixturesPerWeek)
             {
-                return Result.Fail<Season>(SeasonErrors.UnacceptableSeason(teamFixtures, fixturesPerWeek));
+                return Result.Fail<SeasonBaseDto>(SeasonErrors.UnacceptableSeason(teamFixtures, fixturesPerWeek));
             }
 
-            var season = (request, league.Id, ObjectId.GenerateNewId()).Adapt<Season>();
-            List<Fixture> fixtures = Generators.GenerateFixtures(teams, arenas, request, fixturesPerDay, season.Id);
-            
-            return await base.Post(season);
+            var season = (request, league.Adapt<LeagueMinimal>(), ObjectId.GenerateNewId()).Adapt<Season>();
+            List<Fixture> fixtures = Generators.GenerateFixtures(teams, arenas, request, fixturesPerDay, season.Id, league.Adapt<LeagueMinimal>());
+
+            try
+            {
+                await _repository.InsertOneAsync(season);
+                await _fixtureRepository.InsertManyAsync(fixtures);
+
+                return Result.Ok(season.Adapt<SeasonBaseDto>());
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<SeasonBaseDto>(BaseErrors.OperationFailed(ex));
+            }
         }
     }
 }

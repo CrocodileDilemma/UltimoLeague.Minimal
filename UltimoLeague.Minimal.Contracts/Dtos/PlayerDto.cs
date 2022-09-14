@@ -3,28 +3,26 @@ using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Dtos
 {
-    public class PlayerBaseDto
+    public class PlayerMinimalDto : BaseDto
     {
-        [JsonPropertyName("id")]
-        public string PlayerId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string PlayerName { get; set; }
     }
 
-    public class PlayerMinimalDto : BaseDto
+    public class PlayerBaseDto : BaseDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string EmailAddress { get; set; }
         public string ContactNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Gender Gender { get; set; } = Gender.None;
         public string MembershipNumber { get; set; }
         public bool Active { get; set; }
     }
 
-    public class PlayerDto : PlayerMinimalDto
+    public class PlayerDto : PlayerBaseDto
     {
-        public TeamBaseDto? ActiveTeam { get; set; }
+        public TeamMinimalDto? ActiveTeam { get; set; }
     }
 }

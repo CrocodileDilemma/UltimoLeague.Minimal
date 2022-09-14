@@ -16,7 +16,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Leagues
 
         public override async Task HandleAsync(IdRequest request, CancellationToken ct)
         {
-            Result<IEnumerable<League>> result = _service.GetByValue(x => x.Sport.Id == request.Id.ToObjectId());
+            Result<IEnumerable<League>> result = _service.GetByValue(x => x.Sport.BaseId == request.Id.ToObjectId());
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

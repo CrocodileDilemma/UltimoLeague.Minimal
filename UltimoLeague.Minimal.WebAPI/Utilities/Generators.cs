@@ -16,9 +16,9 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
         private const string _chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         private static Random _rng = new Random();
 
-        public static TeamBaseDto ByeFixture()
+        public static TeamMinimal ByeFixture()
         {
-            return new TeamBaseDto { TeamId = ObjectId.Empty.ToString(), Code = "Bye" };
+            return new TeamMinimal { Code = "Bye" };
         }
         public static void Shuffle<T>(this IList<T> list)
         {
@@ -64,8 +64,33 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             return result;
         }
 
-        internal static List<Fixture> GenerateFixtures(List<TeamBaseDto> initialTeams,
-            IQueryable<Arena> arenas, SeasonRequest request, List<TimeOnly> fixtureTimes, ObjectId seasonId)
+        private static List<DateTime> InitializeFixtureDays(DateTime startDate, List<Days> matchDays)
+        {
+            List<DateTime> result = new();
+            DateTime matchDay = startDate;
+
+            foreach (int day in matchDays.OrderBy(day => day))
+            {
+                if (day != (int)matchDay.DayOfWeek)
+                {
+                    int dayOfWeek = day;
+                    if (day == 7)
+                    {
+                        dayOfWeek = 0;
+                    }
+
+                    int daysUntil = (dayOfWeek - (int)matchDay.DayOfWeek + 7) % 7;
+                    matchDay = matchDay.AddDays(daysUntil);
+                }
+
+                result.Add(matchDay);
+            }
+
+            return result;
+        }
+
+        internal static List<Fixture> GenerateFixtures(List<TeamMinimal> initialTeams,
+            IQueryable<Arena> arenas, SeasonRequest request, List<TimeOnly> fixtureTimes, ObjectId seasonId, LeagueMinimal league)
         {
             List<Fixture> result = new List<Fixture>();
 
@@ -85,15 +110,15 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                                               {
                                                   FixtureDay = d.Date,
                                                   FixtureTime = t,
-                                                  ArenaId = a.Id,
+                                                  Arena = a,
                                               }).ToList();
 
 
             for (int matchNo = 0; matchNo < request.NoOfMatches; matchNo++)
             {
-                var teams = initialTeams.Select(x => new TeamBaseDto
+                var teams = initialTeams.Select(x => new TeamMinimal
                 {
-                    TeamId = x.TeamId,
+                    BaseId = x.BaseId,
                     Code = x.Code
                 }).ToList();
 
@@ -103,7 +128,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                     {
                         FixtureDay = x.FixtureDay,
                         FixtureTime = x.FixtureTime,
-                        ArenaId = x.ArenaId
+                        Arena = x.Arena
                     }).ToList();
 
 
@@ -112,24 +137,31 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                         int index = _rng.Next(0, fixtureDetails.Count);
                         var fixtureDetail = fixtureDetails[index];
 
+                        var teamOne = teams[i];
+                        var teamTwo = teams[i + 1];
+                        bool isBye = teamOne.BaseId == ObjectId.Empty || teamOne.BaseId == ObjectId.Empty;
+
                         result.Add(new Fixture
                         {
-                            TeamId = teams[i].TeamId.ToObjectId(),
-                            TeamOppId = teams[i + 1].TeamId.ToObjectId(),
-                            ArenaId = fixtureDetail.ArenaId,
-                            FixtureDateTime = fixtureDetail.FixtureDay.Add(fixtureDetail.FixtureTime.ToTimeSpan()),
+                            Team = teamOne,
+                            TeamOpposition = teamTwo,
+                            Arena = isBye ? null : fixtureDetail.Arena,
+                            FixtureDateTime = isBye ? fixtureDetail.FixtureDay : fixtureDetail.FixtureDay.Add(fixtureDetail.FixtureTime.ToTimeSpan()),
                             SeasonId = seasonId,
                             Status = FixtureStatus.Scheduled,
-                            LeagueId = request.LeagueId.ToObjectId()
+                            League = league
                         });
 
-                        fixtureDetails.RemoveAt(index);
+                        if (!isBye)
+                        {
+                            fixtureDetails.RemoveAt(index);
+                        }
                     }
 
                     //Rearrange the list
                     for (int i = teams.Count - 1; i > 1; i--)
                     {
-                        TeamBaseDto tempTeam = teams[i - 1];
+                        TeamMinimal tempTeam = teams[i - 1];
                         teams[i - 1] = teams[i];
                         teams[i] = tempTeam;
                     }
@@ -138,34 +170,9 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                     {
                         FixtureDay = x.FixtureDay.AddDays(7),
                         FixtureTime = x.FixtureTime,
-                        ArenaId = x.ArenaId
+                        Arena = x.Arena
                     }).ToList();
                 }
-            }
-
-            return result;
-        }
-
-        private static List<DateTime> InitializeFixtureDays(DateTime startDate, List<Days> matchDays)
-        {
-            List<DateTime> result = new();
-            DateTime matchDay = startDate;
-            
-            foreach (int day in matchDays.OrderBy(day => day))
-            {
-                if (day != (int)matchDay.DayOfWeek)
-                {
-                    int dayOfWeek = day;
-                    if (day == 7)
-                    {
-                        dayOfWeek = 0;
-                    }
-
-                    int daysUntil = (dayOfWeek - (int)matchDay.DayOfWeek + 7) % 7;
-                    matchDay = matchDay.AddDays(daysUntil);
-                }
-
-                result.Add(matchDay);
             }
 
             return result;

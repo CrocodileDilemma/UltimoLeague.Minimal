@@ -12,7 +12,12 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public string ContactLastName { get; set; }
         public string ContactEmail { get; set; }
         public string ContactNumber { get; set; }
-        public ObjectId LeagueId { get; set; }
-        public ObjectId SportId { get; set; }
+        public LeagueMinimal League { get; set; }
+        public SportMinimal Sport { get; set; }
+    }
+
+    public class TeamMinimal : BaseMinimalEntity
+    {
+        public string Code { get; set; }
     }
 }

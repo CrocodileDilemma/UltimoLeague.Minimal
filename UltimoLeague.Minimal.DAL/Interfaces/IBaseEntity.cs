@@ -11,4 +11,11 @@ namespace UltimoLeague.Minimal.DAL.Interfaces
 
         DateTime CreatedAt { get; }
     }
+
+    public interface IBaseMinimalEntity
+    {
+        [BsonId]
+        [BsonRepresentation(BsonType.String)]
+        ObjectId BaseId { get; set; }
+    }
 }

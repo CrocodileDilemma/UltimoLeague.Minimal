@@ -12,7 +12,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
         }
         public override async Task HandleAsync(MembershipNoRequest request, CancellationToken ct)
         {
-            Result<PlayerDto> result = _service.GetByMembershipNo(request.MembershipNo);
+            Result<PlayerDto> result = await _service.GetByMembershipNo(request.MembershipNo);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

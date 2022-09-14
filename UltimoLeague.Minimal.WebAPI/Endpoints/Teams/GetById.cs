@@ -14,7 +14,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Teams
 
         public override async Task HandleAsync(IdRequest request, CancellationToken ct)
         {
-            Result<TeamDto> result = _service.GetById(request.Id);
+            Result<TeamDto> result = await _service.GetById(request.Id);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

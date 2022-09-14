@@ -3,7 +3,7 @@
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
 {
     [HttpPut("players/{id}")]
-    public class Put : Endpoint<PlayerUpdateRequest, PlayerMinimalDto>
+    public class Put : Endpoint<PlayerUpdateRequest, PlayerDto>
     {
         private readonly PlayerService _service;
         public Put(PlayerService service)
@@ -12,7 +12,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
         }
         public override async Task HandleAsync(PlayerUpdateRequest request, CancellationToken ct)
         {
-            Result<PlayerMinimalDto> result = await _service.Update(request);
+            Result<PlayerDto> result = await _service.Update(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

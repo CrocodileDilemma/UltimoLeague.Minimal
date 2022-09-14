@@ -3,7 +3,7 @@
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
 {
     [HttpPost("players")]
-    public class Post : Endpoint<PlayerRequest, PlayerMinimalDto>
+    public class Post : Endpoint<PlayerRequest, PlayerDto>
     {
         private readonly PlayerService _service;
         public Post(PlayerService service)
@@ -13,7 +13,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Players
 
         public override async Task HandleAsync(PlayerRequest request, CancellationToken ct)
         {
-            Result<PlayerMinimalDto> result = await _service.Post(request);
+            Result<PlayerDto> result = await _service.Post(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

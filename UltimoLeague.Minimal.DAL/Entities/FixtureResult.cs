@@ -7,7 +7,7 @@ namespace UltimoLeague.Minimal.DAL.Entities
     public class FixtureResult : BaseEntity
     {
         public ObjectId FixtureId { get; set; }
-        public ObjectId TeamId { get; set; }
+        public TeamMinimal Team { get; set; }
         public int Score { get; set; }
         public FixtureResultStatus Result { get; set; }
     }

@@ -14,6 +14,11 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public Gender Gender { get; set; }
         public bool Active { get; set; }
         public string MembershipNumber { get; set; }
-        public ObjectId ActiveTeamId { get; set; }
+        public TeamMinimal ActiveTeam { get; set; }
+    }
+
+    public class PlayerMinimal : BaseMinimalEntity
+    {
+        public string PlayerName { get; set; }
     }
 }

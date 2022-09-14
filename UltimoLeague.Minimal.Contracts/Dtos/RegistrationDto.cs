@@ -4,8 +4,8 @@
     {
         public string RegistrationNumber { get; set; }
         public DateTime RegistrationDate { get; set; }
-        public PlayerBaseDto Player { get; set; }
-        public TeamBaseDto Team { get; set; }
-        public TeamBaseDto? PreviousTeam { get; set; }
+        public PlayerMinimalDto Player { get; set; }
+        public TeamMinimalDto Team { get; set; }
+        public TeamMinimalDto? PreviousTeam { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using MongoDB.Bson;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Mapping;
@@ -18,25 +19,26 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public IEnumerable<TeamDto> GetAll()
         {
-            return TeamQuery().AsEnumerable();
+            return _repository.AsQueryable().AsEnumerable()
+                .Adapt<IEnumerable<TeamDto>>();
         }
 
-        public Result<TeamDto> GetById(string id)
+        public async Task<Result<TeamDto>> GetById(string id)
         {
-            var result = TeamQuery().FirstOrDefault(x => x.Id == id);
+            var result = await _repository.FindByIdAsync(id);
 
             if (result is null)
             {
                 return Result.Fail<TeamDto>(BaseErrors.InvalidObjectId(id));
             }
 
-            return Result.Ok(result);
+            return Result.Ok(result.Adapt<TeamDto>());
         }
 
         public IEnumerable<TeamDto> GetByLeagueId(string id)
         {
-            var result = TeamQuery().Where(x => x.League.Id == id);
-            return result.AsEnumerable();
+            var result = _repository.FilterBy(x => x.League.BaseId == new ObjectId(id));
+            return result.AsEnumerable().Adapt<IEnumerable<TeamDto>>();
         }
 
         public async Task<Result<TeamDto>> Post(TeamRequest request)
@@ -47,7 +49,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<TeamDto>(validationResult.Errors);
             }
 
-            var team = await _repository.FindOneAsync(x => x.Code == request.Code && x.SportId == validationResult.Value.Sport.Id);
+            var team = await _repository.FindOneAsync(x => x.Code == request.Code && 
+                x.Sport.BaseId == validationResult.Value.Sport.BaseId);
 
             if (team is not null)
             {
@@ -76,8 +79,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<TeamDto>(BaseErrors.ObjectNotFound<Team>());
             }
 
-            Result<League> validationResult = await this.ValidateRequest(request.LeagueId ?? team.LeagueId.ToString(), 
-                request.SportId ?? team.SportId.ToString());
+            Result<League> validationResult = await this.ValidateRequest(request.LeagueId ?? team.League.BaseId.ToString(), 
+                request.SportId ?? team.Sport.BaseId.ToString());
             if (validationResult.IsFailed)
             {
                 return Result.Fail<TeamDto>(validationResult.Errors);
@@ -96,28 +99,6 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
         }
 
-        private IQueryable<TeamDto> TeamQuery()
-        {
-            return (from t in _repository.AsQueryable()
-                    join l in _leagueRepository.AsQueryable()
-                    on t.LeagueId equals l.Id
-                    select new TeamDto
-                    {
-                        Id = t.Id.ToString(),
-                        Code = t.Code,
-                        ContactEmail = t.ContactEmail,
-                        ContactFirstName = t.ContactFirstName,
-                        ContactLastName = t.ContactLastName,
-                        ContactNumber = t.ContactNumber,
-                        Name = t.Name,
-                        League = new LeagueBaseDto
-                        {
-                            Id = l.Id.ToString(),
-                            Code = l.Code
-                        }
-                    });
-        }
-
         private async Task<Result<League>> ValidateRequest(string leagueId, string sportId)
         {
             var league = await _leagueRepository.FindByIdAsync(leagueId);
@@ -127,7 +108,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<League>(BaseErrors.ObjectNotFoundWithId<League>(leagueId));
             }
 
-            if (league.Sport.Id != sportId.ToObjectId())
+            if (league.Sport.BaseId != sportId.ToObjectId())
             {
                 return Result.Fail<League>(LeagueErrors.InvalidSport(sportId));
             }
