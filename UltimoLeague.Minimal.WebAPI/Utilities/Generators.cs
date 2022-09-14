@@ -139,7 +139,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
 
                         var teamOne = teams[i];
                         var teamTwo = teams[i + 1];
-                        bool isBye = teamOne.BaseId == ObjectId.Empty || teamOne.BaseId == ObjectId.Empty;
+                        bool isBye = teamOne.BaseId == ObjectId.Empty || teamTwo.BaseId == ObjectId.Empty;
 
                         result.Add(new Fixture
                         {
@@ -175,7 +175,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                 }
             }
 
-            return result;
+            return result.OrderBy(x => x.FixtureDateTime).ToList();
         }
 
         internal static int GetFirstMatchDay(List<Days> matchDays)

@@ -33,8 +33,6 @@ namespace UltimoLeague.Minimal.DAL.Common
         Tackle = 8,
         Pass = 9
     }
-
-
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Days
     {

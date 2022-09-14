@@ -12,12 +12,6 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
                 .NotEmpty()
                 .WithMessage("Start Date is required!");
 
-            RuleFor(x => x.EndDate)
-                .NotEmpty()
-                .WithMessage("End Date is required!")
-                .GreaterThan(x => x.StartDate)
-                .WithMessage("End Date must be after Start Date!");
-
             RuleFor(x => x.NoOfMatches)
                 .GreaterThan(0)
                 .WithMessage("Number of matches must be a value greater than 0!");
@@ -30,34 +24,43 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
 
             RuleFor(x => x.StartTime)
                 .NotEmpty()
-                .WithMessage("Start Time is required!");
+                .WithMessage("Start Time is required!")
+                .Must(x => BeValidTime(x))
+                .WithMessage("End Time is not a Valid Time!");
 
             RuleFor(x => x.EndTime)
                 .NotEmpty()
                 .WithMessage("End Time is required!")
+                .Must(x => BeValidTime(x))
+                .WithMessage("End Time is not a Valid Time!")
                 .GreaterThan(x => x.StartTime)
                 .WithMessage("End Time must be after Start Time!");
 
             RuleFor(x => x.MatchDays)
                 .NotEmpty()
-                .WithMessage("Match Days are required!");
-                ////.Must((model, field) => StartOnStartDate(model.StartDate, field))
-                ////.WithMessage("Season Start Date must be the first Match Day!")
-                ////.Must((field) => StartOnSunday(field))
-                ////.WithMessage("Season cannot Start on a Sunday!");
-            //.IsInEnum<Days>()
-            //.WithMessage("Match Days must be valid Days!");
+                .WithMessage("Match Days are required!")
+                .Must((model, x) => StartOnStartDate(model.StartDate, x))
+                .WithMessage("Season Start Date must be the first Match Day!")
+                .Must(x => NotStartOnSunday(x))
+                .WithMessage("Season cannot Start on a Sunday!");
+                //.IsInEnum<Days>()
+                //.WithMessage("Match Days must be valid Days!");
 
         }
 
-        private bool StartOnSunday(List<Days> matchDays)
+        private bool BeValidTime(string time)
         {
-            return !(matchDays.Count == 1 && Generators.GetFirstMatchDay(matchDays) == 0);
+            return TimeOnly.TryParse(time, out _);
         }
 
-        private bool StartOnStartDate(DateTime startDate, List<Days> matchDays)
+        private bool NotStartOnSunday(IEnumerable<Days> matchDays)
         {
-            return (int)startDate.DayOfWeek == Generators.GetFirstMatchDay(matchDays);
+            return !(matchDays.Count() == 1 && Generators.GetFirstMatchDay(matchDays.ToList()) == 0);
+        }
+
+        private bool StartOnStartDate(DateTime startDate, IEnumerable<Days> matchDays)
+        {
+            return (int)startDate.DayOfWeek == Generators.GetFirstMatchDay(matchDays.ToList());
         }
     }
 }

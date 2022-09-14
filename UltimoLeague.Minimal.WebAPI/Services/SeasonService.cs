@@ -53,8 +53,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<SeasonBaseDto>(TeamErrors.InvalidLeague(request.LeagueId));
             }
 
-            var seasons = _repository.FilterBy(x => x.League.BaseId == league.Id && x.StartDate <= request.EndDate
-                && x.EndDate >= request.StartDate);
+            var seasons = _repository.FilterBy(x => (x.EndDate >= request.StartDate && x.StartDate <= request.StartDate)
+                 && x.League.BaseId == league.Id);
 
             if (seasons.Any())
             {
@@ -65,7 +65,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             // get number of fixtures allowed per day and for each week
             List<TimeOnly> fixturesPerDay = Generators.GetFixturesPerDay(sport, TimeOnly.Parse(request.StartTime), TimeOnly.Parse(request.EndTime));
-            int fixturesPerWeek = request.MatchDays.Count * fixturesPerDay.Count * arenas.Count();
+            int fixturesPerWeek = request.MatchDays.Count() * fixturesPerDay.Count * arenas.Count();
 
             // determine how many fixtures are required per week.
             int teamFixtures = teams.Count() / 2;
@@ -86,6 +86,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             var season = (request, league.Adapt<LeagueMinimal>(), ObjectId.GenerateNewId()).Adapt<Season>();
             List<Fixture> fixtures = Generators.GenerateFixtures(teams, arenas, request, fixturesPerDay, season.Id, league.Adapt<LeagueMinimal>());
+            season.EndDate = fixtures.Max(x => x.FixtureDateTime).Date;
+
 
             try
             {
