@@ -43,9 +43,6 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
                 .WithMessage("Season Start Date must be the first Match Day!")
                 .Must(x => NotStartOnSunday(x))
                 .WithMessage("Season cannot Start on a Sunday!");
-                //.IsInEnum<Days>()
-                //.WithMessage("Match Days must be valid Days!");
-
         }
 
         private bool BeValidTime(string time)

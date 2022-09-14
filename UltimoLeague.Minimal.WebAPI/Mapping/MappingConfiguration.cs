@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Routing.Constraints;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Misc;
 using UltimoLeague.Minimal.Contracts.Dtos;
+using UltimoLeague.Minimal.Contracts.Requests;
 using UltimoLeague.Minimal.DAL.Entities;
 
 namespace UltimoLeague.Minimal.WebAPI.Mapping
@@ -10,6 +12,20 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<ArenaRequest, Arena>();
+
+            config.NewConfig<(FixtureUpdateRequest, TeamMinimal, TeamMinimal, Arena), Fixture>()
+                .Map(dest => dest, src => src.Item1)
+                .IgnoreIf((src, dest) => src.Item1.FixtureDateTime == null, dest => dest.FixtureDateTime)
+                .IgnoreIf((src, dest) => src.Item1.Status == null, dest => dest.Status)
+                .Map(dest => dest.Team, src => src.Item2)
+                .Map(dest => dest.TeamOpposition, src => src.Item3)
+                .Map(dest => dest.Arena, src => src.Item4);
+
+            config.NewConfig<Fixture, FixtureDto>()
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.League, src => src.League.Adapt<LeagueMinimalDto>())
+                .Map(dest => dest.Team, src => src.Team.Adapt<TeamMinimalDto>())
+                .Map(dest => dest.TeamOpposition, src => src.TeamOpposition.Adapt<TeamMinimalDto>());
 
             config.NewConfig<League, LeagueMinimal>()
                 .Map(dest => dest, src => src)

@@ -33,6 +33,7 @@ namespace UltimoLeague.Minimal.DAL.Common
         Tackle = 8,
         Pass = 9
     }
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Days
     {
@@ -55,6 +56,6 @@ namespace UltimoLeague.Minimal.DAL.Common
     public enum FixtureStatus
     {
         Scheduled = 0,
-        Completed = 1,
+        Complete = 1,
     }
 }

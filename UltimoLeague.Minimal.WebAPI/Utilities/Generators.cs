@@ -131,7 +131,6 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                         Arena = x.Arena
                     }).ToList();
 
-
                     for (int i = 0; i < teams.Count; i += 2)
                     {
                         int index = _rng.Next(0, fixtureDetails.Count);
@@ -146,7 +145,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                             Team = teamOne,
                             TeamOpposition = teamTwo,
                             Arena = isBye ? null : fixtureDetail.Arena,
-                            FixtureDateTime = isBye ? fixtureDetail.FixtureDay : fixtureDetail.FixtureDay.Add(fixtureDetail.FixtureTime.ToTimeSpan()),
+                            FixtureDateTime = fixtureDetail.FixtureDay.Add(fixtureDetail.FixtureTime.ToTimeSpan()),
                             SeasonId = seasonId,
                             Status = FixtureStatus.Scheduled,
                             League = league

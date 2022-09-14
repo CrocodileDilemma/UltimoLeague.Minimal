@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Endpoints\Fixtures\" />
     <Folder Include="Endpoints\Statistics\" />
     <Folder Include="Endpoints\Results\" />
   </ItemGroup>

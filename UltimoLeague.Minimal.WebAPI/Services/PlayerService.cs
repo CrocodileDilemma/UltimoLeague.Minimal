@@ -69,7 +69,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var player = _repository.FindById(request.Id);
             if (player is null)
             {
-                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFound<Player>());
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFoundWithId<Player>(request.Id));
             }
 
             request.Adapt(player);

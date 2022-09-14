@@ -87,7 +87,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var season = (request, league.Adapt<LeagueMinimal>(), ObjectId.GenerateNewId()).Adapt<Season>();
             List<Fixture> fixtures = Generators.GenerateFixtures(teams, arenas, request, fixturesPerDay, season.Id, league.Adapt<LeagueMinimal>());
             season.EndDate = fixtures.Max(x => x.FixtureDateTime).Date;
-
+            season.NoOfMatches = fixtures.Count();
 
             try
             {

@@ -60,7 +60,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<IEnumerable<T>>(BaseErrors.ObjectsNotFound<T>());
             }
 
-            return Result.Ok<IEnumerable<T>>(entities);
+            return Result.Ok(entities);
         }
 
         public async Task<Result<T>> Post(T entity)
