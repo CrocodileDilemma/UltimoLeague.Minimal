@@ -43,6 +43,7 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<PlayerService>();
             builder.Services.AddScoped<RegistrationService>();
             builder.Services.AddScoped<FixtureService>();
+            builder.Services.AddScoped<FixtureResultService>();
 
             var app = builder.Build();
             app.UseErrorExceptionHandler();

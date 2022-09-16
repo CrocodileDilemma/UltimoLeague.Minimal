@@ -38,7 +38,7 @@ namespace UltimoLeague.Minimal.WebAPI.Summaries.FixtureResults
         {
             public PostSummary()
             {
-                Summary = "Create or Update a Fixture Result";
+                Summary = "Upsert a Fixture Result";
                 Description = "Create a new or Update an existing Fixture Result record.";
             }
         }
