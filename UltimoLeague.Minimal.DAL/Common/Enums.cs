@@ -12,11 +12,11 @@ namespace UltimoLeague.Minimal.DAL.Common
 
     public enum FixtureResultStatus
     {
-        None = 0,
-        Win = 1,
-        Loss = 2,
-        Draw = 3,
-        Forfeit = 4,
+        Win = 0,
+        Loss = 1,
+        Draw = 2,
+        ForfeitWin = 3,
+        ForfeitLoss = 4,
         Bye = 5
     }
 

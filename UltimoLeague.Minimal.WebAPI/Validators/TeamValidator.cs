@@ -47,13 +47,15 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
             RuleFor(x => x.LeagueId)
                 .NotEmpty()
                 .WithMessage("League Id is required!")
-                .Must(GlobalValidators.BeValidObjectId).WithMessage("League Id is not a valid Id!");
+                .Must(GlobalValidators.BeValidObjectId)
+                .WithMessage("League Id is not a valid Id!");
 
 
             RuleFor(x => x.SportId)
                 .NotEmpty()
                 .WithMessage("Sport Id is required!")
-                .Must(GlobalValidators.BeValidObjectId).WithMessage("Sport Id is not a valid Id!");
+                .Must(GlobalValidators.BeValidObjectId)
+                .WithMessage("Sport Id is not a valid Id!");
         }
     }
 }

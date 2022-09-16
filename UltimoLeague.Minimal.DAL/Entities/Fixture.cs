@@ -14,5 +14,6 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public LeagueMinimal League { get; set; }
         public DateTime FixtureDateTime { get; set; }
         public FixtureStatus Status { get; set; }
+        public bool Bye { get; set; }
     }
 }

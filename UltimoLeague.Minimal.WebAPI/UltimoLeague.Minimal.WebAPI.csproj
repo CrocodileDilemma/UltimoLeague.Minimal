@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\Statistics\" />
-    <Folder Include="Endpoints\Results\" />
   </ItemGroup>
 
 </Project>

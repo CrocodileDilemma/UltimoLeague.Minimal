@@ -13,5 +13,6 @@ namespace UltimoLeague.Minimal.Contracts.Dtos
         public DateTime FixtureDateTime { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public FixtureStatus Status { get; set; }
+        public bool Bye { get; set; }
     }
 }

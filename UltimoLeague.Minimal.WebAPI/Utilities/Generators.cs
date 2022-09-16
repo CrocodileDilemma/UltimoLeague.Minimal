@@ -89,8 +89,8 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             return result;
         }
 
-        internal static List<Fixture> GenerateFixtures(List<TeamMinimal> initialTeams,
-            IQueryable<Arena> arenas, SeasonRequest request, List<TimeOnly> fixtureTimes, ObjectId seasonId, LeagueMinimal league)
+        internal static List<Fixture> GenerateFixtures(List<TeamMinimal> initialTeams, IQueryable<Arena> arenas,
+            SeasonRequest request, List<TimeOnly> fixtureTimes, ObjectId seasonId, LeagueMinimal league)
         {
             List<Fixture> result = new List<Fixture>();
 
@@ -99,7 +99,6 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             {
                 matchDays.Add((Days)day);
             }
-
             
             List<DateTime> fixtureDays = InitializeFixtureDays(request.StartDate, matchDays);
 
@@ -148,7 +147,8 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
                             FixtureDateTime = fixtureDetail.FixtureDay.Add(fixtureDetail.FixtureTime.ToTimeSpan()),
                             SeasonId = seasonId,
                             Status = FixtureStatus.Scheduled,
-                            League = league
+                            League = league,
+                            Bye = isBye
                         });
 
                         if (!isBye)

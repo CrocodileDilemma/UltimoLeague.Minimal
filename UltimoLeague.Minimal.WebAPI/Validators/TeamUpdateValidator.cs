@@ -33,14 +33,12 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
                .WithMessage("Contact Number cannot be greater than 100 characters!");
 
             RuleFor(x => x.LeagueId)
-                .Must(GlobalValidators.BeValidObjectId)
-                .When(x => !string.IsNullOrEmpty(x.LeagueId))
+                .Must(GlobalValidators.BeValidObjectIdOrNull)
                 .WithMessage("League Id is not a valid Id!");
 
 
             RuleFor(x => x.SportId)
-                .Must(GlobalValidators.BeValidObjectId)
-                .When(x => !string.IsNullOrEmpty(x.SportId))
+                .Must(GlobalValidators.BeValidObjectIdOrNull)
                 .WithMessage("Sport Id is not a valid Id!");
         }
     }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using UltimoLeague.Minimal.Contracts.Dtos;
+﻿using System.Text.Json.Serialization;
 using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.Contracts.Requests

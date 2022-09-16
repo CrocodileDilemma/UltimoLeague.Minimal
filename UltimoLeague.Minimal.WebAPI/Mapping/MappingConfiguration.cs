@@ -27,6 +27,10 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
                 .Map(dest => dest.Team, src => src.Team.Adapt<TeamMinimalDto>())
                 .Map(dest => dest.TeamOpposition, src => src.TeamOpposition.Adapt<TeamMinimalDto>());
 
+            config.NewConfig<FixtureResult, FixtureResultDto>()
+                .Map(dest => dest, src => src)
+                .Map(dest => dest.Team, src => src.Team.Adapt<TeamMinimalDto>());
+
             config.NewConfig<League, LeagueMinimal>()
                 .Map(dest => dest, src => src)
                 .Map(dest => dest.BaseId, src => src.Id);
@@ -112,7 +116,6 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
             config.NewConfig<TeamMinimal, TeamMinimalDto>()
                 .Map(dest => dest, src => src)
                 .Map(dest => dest.Id, src => src.BaseId);
-
 
             config.NewConfig<(TeamRequest, League), Team>()
                 .Map(dest => dest, src => src.Item1)

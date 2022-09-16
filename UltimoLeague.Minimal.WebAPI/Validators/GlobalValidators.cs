@@ -5,8 +5,14 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
     public static class GlobalValidators
     {
         public static bool BeValidObjectId(string id)
-        {   
-            return ObjectId.TryParse(id, out _);
+        {
+            ObjectId result;
+            if (ObjectId.TryParse(id, out result))
+            {
+                 return result != ObjectId.Empty;
+            }
+
+            return false;
         }
 
         public static bool BeValidObjectIdOrNull(string id)
@@ -16,7 +22,7 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
                 return true;
             }
 
-            return ObjectId.TryParse(id, out _);
+            return BeValidObjectId(id);
         }
     }
 }
