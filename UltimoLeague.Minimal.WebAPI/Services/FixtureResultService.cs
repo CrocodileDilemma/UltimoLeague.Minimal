@@ -73,6 +73,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             try
             {
+                await _repository.DeleteManyAsync(x => x.FixtureId == fixture.Id);
+
                 if (results.Count() > 1)
                 {
                     await _repository.InsertManyAsync(results);
