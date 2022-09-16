@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using UltimoLeague.Minimal.DAL.Common;
 
 namespace UltimoLeague.Minimal.WebAPI.Validators
 {
@@ -26,11 +27,33 @@ namespace UltimoLeague.Minimal.WebAPI.Validators
 
             RuleFor(x => x.OppositionScore)
                 .GreaterThanOrEqualTo(0)
-                .WithMessage("Opposition Score cannot be less than 0!");
+                .WithMessage("Opposition Score cannot be less than 0!")
+                .Must((model, x) => BeValidScore(model.Score, model.OppositionScore, model.Result))
+                .WithMessage("Invalid Score, Opposition Score and Result!");
 
             RuleFor(x => x.Result)
                 .IsInEnum()
                 .WithMessage("Result is not valid!");
+        }
+
+        private bool BeValidScore(int score, int oppositionScore, FixtureResultStatus result)
+        {
+            if (score < oppositionScore && result == FixtureResultStatus.Win)
+            {
+                return false;
+            }
+
+            if (score > oppositionScore && result == FixtureResultStatus.Loss)
+            {
+                return false;
+            }
+
+            if (score != oppositionScore && result == FixtureResultStatus.Draw)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

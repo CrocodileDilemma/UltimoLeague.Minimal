@@ -87,7 +87,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 fixture.Status = FixtureStatus.Complete;
                 await _fixtureRepository.ReplaceOneAsync(fixture);
 
-                return Result.Ok(results.Adapt<IEnumerable<FixtureResultDto>>());
+                return Result.Ok(results.AsEnumerable()
+                    .Adapt<IEnumerable<FixtureResultDto>>());
             }
             catch (Exception ex)
             {
