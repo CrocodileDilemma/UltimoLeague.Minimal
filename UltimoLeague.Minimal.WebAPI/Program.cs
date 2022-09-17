@@ -20,6 +20,7 @@ namespace UltimoLeague.Minimal.WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors();
             builder.Services.AddAuthorization();
             builder.Services.AddFastEndpoints();
             builder.Services.AddSwaggerDoc(settings =>
@@ -47,6 +48,7 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<StatisticService>();
 
             var app = builder.Build();
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseErrorExceptionHandler();
             app.UseAuthorization();
             app.UseFastEndpoints(c =>
