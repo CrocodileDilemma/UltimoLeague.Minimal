@@ -5,19 +5,19 @@ using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Statistics
 {
-    [HttpGet("statistics/getByFixtureId/{id}")]
-    public class GetByFixtureId : Endpoint<IdRequest, IEnumerable<StatisticDto>>
+    [HttpGet("statistics/getByPlayerId/{id}")]
+    public class GetByPlayerId : Endpoint<IdRequest, IEnumerable<StatisticDto>>
     {
         private readonly StatisticService _service;
 
-        public GetByFixtureId(StatisticService service)
+        public GetByPlayerId(StatisticService service)
         {
             _service = service;
         }
 
         public override async Task HandleAsync(IdRequest request, CancellationToken ct)
         {
-            IEnumerable<StatisticDto> result = _service.GetByFixtureId(request.Id);
+            IEnumerable<StatisticDto> result = _service.GetByPlayerId(request.Id);
             await SendOkAsync(result, ct);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Services;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Statistics
@@ -6,22 +7,22 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Statistics
     [HttpGet("statistics/{id}")]
     public class GetById : Endpoint<IdRequest, StatisticDto>
     {
-        private readonly IBaseService<Statistic> _service;
+        private readonly StatisticService _service;
 
-        public GetById(IBaseService<Statistic> service)
+        public GetById(StatisticService service)
         {
             _service = service;
         }
 
         public override async Task HandleAsync(IdRequest request, CancellationToken ct)
         {
-            Result<Statistic> result = await _service.GetById(request.Id);
+            Result<StatisticDto> result = _service.GetById(request.Id);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);
             }
 
-            await SendOkAsync(result.Value.Adapt<StatisticDto>(), ct);
+            await SendOkAsync(result.Value, ct);
         }
     }
 }
