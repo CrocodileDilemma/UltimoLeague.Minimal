@@ -7,5 +7,6 @@
         public PlayerMinimalDto Player { get; set; }
         public TeamMinimalDto Team { get; set; }
         public TeamMinimalDto? PreviousTeam { get; set; }
+        public bool Approved { get; set; }
     }
 }

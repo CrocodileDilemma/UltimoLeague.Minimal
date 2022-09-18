@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System.Linq.Expressions;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -76,12 +77,56 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             string registrationNo = Generators.RegistrationNumber();
             var registration = (registrationNo, player, team).Adapt<Registration>();
 
-            player.ActiveTeam = team.Adapt<TeamMinimal>();
+            try
+            {
+                await _repository.InsertOneAsync(registration);
+                return Result.Ok(registration.Adapt<RegistrationDto>());
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<RegistrationDto>(BaseErrors.OperationFailed(ex));
+            }
+        }
+
+        public async Task<Result<RegistrationDto>> Put(IdRequest request)
+        {
+            var registration = await _repository.FindByIdAsync(request.Id);
+
+            if (registration is null)
+            {
+                return Result.Fail<RegistrationDto>(BaseErrors.ObjectNotFoundWithId<Registration>(request.Id));
+            }
+
+            if (registration.Approved)
+            {
+                return Result.Fail<RegistrationDto>(RegistrationErrors.RegistrationWithIdApproved(request.Id));
+            }
+
+            var player = await _playerRepository.FindByIdAsync(registration.Player.BaseId.ToString());
+
+            if (player is null)
+            {
+                return Result.Fail<RegistrationDto>(BaseErrors.ObjectNotFoundWithId<Player>(registration.Player.BaseId));
+            }
+
+            if (!player.Active)
+            {
+                return Result.Fail<RegistrationDto>(PlayerErrors.PlayerInactive());
+            }
+
+            if (player.ActiveTeam?.BaseId == registration.Team.BaseId)
+            {
+                return Result.Fail<RegistrationDto>(PlayerErrors.PlayerAlreadyRegistered(registration.Team.Code));
+            }
+
+
+            registration.Approved = true;
+            player.ActiveTeam = registration.Team;
 
             try
             {
                 await _playerRepository.ReplaceOneAsync(player);
-                await _repository.InsertOneAsync(registration);
+                await _repository.ReplaceOneAsync(registration);
                 return Result.Ok(registration.Adapt<RegistrationDto>());
             }
             catch (Exception ex)

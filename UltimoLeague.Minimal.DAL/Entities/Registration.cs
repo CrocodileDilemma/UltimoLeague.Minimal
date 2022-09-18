@@ -11,5 +11,6 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public TeamMinimal PreviousTeam { get; set; }
         public string RegistrationNumber { get; set; }
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
+        public bool Approved { get; set; }
     }
 }

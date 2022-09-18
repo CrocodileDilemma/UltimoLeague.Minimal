@@ -42,4 +42,14 @@ namespace UltimoLeague.Minimal.WebAPI.Summaries.Registrations
             //Response<RegistrationDto>(200, "ok response with body");
         }
     }
+
+    public class PutSummary : Summary<Put>
+    {
+        public PutSummary()
+        {
+            Summary = "Approve a Registration";
+            Description = "Approve an existing Registration record.";
+            //Response<RegistrationDto>(200, "ok response with body");
+        }
+    }
 }
