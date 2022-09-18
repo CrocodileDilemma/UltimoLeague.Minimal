@@ -22,6 +22,16 @@ namespace UltimoPlayer.Minimal.WebAPI.Summaries.Players
         }
     }
 
+    public class GetByEmailSummary : Summary<GetByEmail>
+    {
+        public GetByEmailSummary()
+        {
+            Summary = "Retrieve a Player by the Email Address";
+            Description = "Retrieve a single Player record by passing the Email Address.";
+            // Response<PlayerDto>(200, "ok response with body");
+        }
+    }
+
     public class GetByTeamIdSummary : Summary<GetByTeamId>
     {
         public GetByTeamIdSummary()

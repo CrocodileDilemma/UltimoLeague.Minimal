@@ -41,6 +41,18 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             return Result.Ok(result.Adapt<PlayerDto>());
         }
 
+        public async Task<Result<PlayerDto>> GetByEmailAddress(string emailAddress)
+        {
+            var result = await _repository.FindOneAsync(x => x.EmailAddress == emailAddress);
+
+            if (result is null)
+            {
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFound<Player>());
+            }
+
+            return Result.Ok(result.Adapt<PlayerDto>());
+        }
+
         public IEnumerable<PlayerDto> GetByTeamId(string id)
         {
             var teamId = new ObjectId(id);
@@ -50,6 +62,12 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
         public async Task<Result<PlayerDto>> Post(PlayerRequest request)
         {
+            var players = _repository.FilterBy(x => x.EmailAddress == request.EmailAddress);
+            if (players.Any())
+            {
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectExists<Player>());
+            }
+
             Player player = request.Adapt<Player>();
             player.MembershipNumber = Generators.MembershipNumber();
 
@@ -70,6 +88,15 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             if (player is null)
             {
                 return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFoundWithId<Player>(request.Id));
+            }
+
+            if (player.EmailAddress != request.EmailAddress)
+            {
+                var players = _repository.FilterBy(x => x.EmailAddress == request.EmailAddress);
+                if (players.Any())
+                {
+                    return Result.Fail<PlayerDto>(BaseErrors.ObjectExists<PlayerDto>());
+                }
             }
 
             request.Adapt(player);
