@@ -1,13 +1,9 @@
-﻿using MongoDB.Bson;
-using System;
-using System.Globalization;
-using System.Runtime.CompilerServices;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.IdentityModel.Tokens;
+using MongoDB.Bson;
 using System.Security.Cryptography;
-using UltimoLeague.Minimal.Contracts.Requests;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Entities;
-using UltimoLeague.Minimal.WebAPI.Mapping;
-using YamlDotNet.Core.Tokens;
 
 namespace UltimoLeague.Minimal.WebAPI.Utilities
 {
@@ -186,6 +182,25 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             }
 
             return firstMatchDay;
+        }
+
+        internal static (byte[] salt, byte[] hash) GeneratePasswordHash(string password)
+        {
+            byte[] salt;
+            byte[] hash;
+            
+            using (var hmac = new HMACSHA512())
+            {
+                salt = hmac.Key;
+                hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+
+            return (salt, hash);
+        }
+
+        internal static string GenerateVerificationToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
     }
 }

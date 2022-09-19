@@ -3,13 +3,16 @@ global using FluentResults;
 global using Mapster;
 global using UltimoLeague.Minimal.Contracts.Dtos;
 global using UltimoLeague.Minimal.Contracts.Requests;
+using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Microsoft.Extensions.Options;
+using System.Data;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.DAL.Repositories;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Mapping;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
@@ -23,14 +26,15 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddCors();
             builder.Services.AddAuthorization();
             builder.Services.AddFastEndpoints();
+            builder.Services.AddAuthenticationJWTBearer("BrandNewTokenSigningKey");
+            builder.Services.AddAuthorization(o => o.AddPolicy(Policy.AdminOnly, b => b.RequireRole(Roles.Admin)));
             builder.Services.AddSwaggerDoc(settings =>
             {
                 settings.Title = "Ultimo League API";
                 settings.Version = "v.1.0";
                 settings.DocumentName = "Ultimo League API v.1.0";
                 settings.UseControllerSummaryAsTagDescription = true;
-            }, addJWTBearerAuth: false);
-
+            }, addJWTBearerAuth: true);          
             builder.Services.AddMappings();
             builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
             builder.Services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
@@ -46,17 +50,19 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<FixtureService>();
             builder.Services.AddScoped<FixtureResultService>();
             builder.Services.AddScoped<StatisticService>();
+            builder.Services.AddScoped<SessionService>();
 
             var app = builder.Build();
             app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             app.UseErrorExceptionHandler();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseFastEndpoints(c =>
             {
                 c.Endpoints.RoutePrefix = "api";
                 c.Endpoints.Configurator = ep =>
                 {
-                    ep.AllowAnonymous();
+                    // ep.AllowAnonymous();
                 };
             });
             app.UseOpenApi();

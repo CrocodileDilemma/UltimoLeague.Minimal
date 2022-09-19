@@ -2,7 +2,7 @@
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
-{
+{ 
     [HttpGet("sports/getByName/{name}")]
     public class GetByName : Endpoint<NameRequest, SportDto>
     {
