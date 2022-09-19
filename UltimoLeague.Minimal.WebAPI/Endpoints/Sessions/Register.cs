@@ -6,7 +6,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sessions
 {
     [AllowAnonymous]
     [HttpPost("sessions/register")]
-    public class Register : Endpoint<SessionRequest, string>
+    public class Register : Endpoint<SessionRegisterRequest, string>
     {
         private readonly SessionService _service;
         public Register(SessionService service)
@@ -14,7 +14,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sessions
             _service = service;
         }
 
-        public override async Task HandleAsync(SessionRequest request, CancellationToken ct)
+        public override async Task HandleAsync(SessionRegisterRequest request, CancellationToken ct)
         {
             Result<string> result = await _service.Register(request);
             if (result.IsFailed)

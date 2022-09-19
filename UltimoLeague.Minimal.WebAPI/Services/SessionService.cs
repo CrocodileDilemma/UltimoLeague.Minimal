@@ -1,4 +1,6 @@
-﻿using FastEndpoints.Security;
+﻿using DnsClient;
+using FastEndpoints.Security;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
@@ -16,14 +18,21 @@ namespace UltimoLeague.Minimal.WebAPI.Services
         {
             User user = await Repository.FindOneAsync(x => x.EmailAddress == request.EmailAddress);
             
-            if (user is null)
+            if (!Generators.VerifyUserPasswordHash(user, request.Password))
             {
-                return Result.Fail<SessionDto>(BaseErrors.ObjectNotFound<User>());
+                return Result.Fail<SessionDto>(UserErrors.InvalidUserNameOrPassword());
             }
+
+            if (user.VerifiedAt is null)
+            {
+                return Result.Fail<SessionDto>(UserErrors.UserUnverified());
+            }
+
+            DateTime expiry = DateTime.UtcNow.AddDays(1);
 
             var jwtToken = JWTBearer.CreateToken(
                 signingKey: "BrandNewTokenSigningKey",
-                expireAt: DateTime.UtcNow.AddDays(1),
+                expireAt: expiry,
                 roles: new[] { user.AdminUser ? Roles.Admin : Roles.User },
                 claims: new List<Claim>
                 {
@@ -31,7 +40,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                     new Claim(ClaimTypes.Email, user.EmailAddress)
                 });
 
-            return Result.Ok(new SessionDto { EmailAddress = request.EmailAddress, Token = jwtToken  });
+            return Result.Ok(new SessionDto { EmailAddress = request.EmailAddress, Token = jwtToken, TokenExpiry = expiry });
         }
 
         public async Task<Result<string>> Register(SessionRequest request)
@@ -50,7 +59,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 EmailAddress = request.EmailAddress,
                 PasswordHash = info.hash,
                 PasswordSalt = info.salt,
-                VerificationToken = Generators.GenerateVerificationToken()
+                VerificationToken = Generators.GenerateToken()
             };
 
             var result = await base.Post(user);
@@ -60,7 +69,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<string>(result.Errors);
             }
 
-            return SendVerificationEmail(user);
+            return await SendVerificationEmail(user);
         }
 
         public async Task<Result<string>> Verify(VerificationRequest request)
@@ -69,7 +78,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             if (user is null)
             {
-                return Result.Fail<string>(BaseErrors.ObjectExists<User>());
+                return Result.Fail<string>(BaseErrors.ObjectNotFound<User>());
             }
 
             if (user.VerifiedAt is not null)
@@ -77,7 +86,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<string>(UserErrors.UserVerified());
             }
 
-            user.VerifiedAt = DateTime.Now;         
+            user.VerifiedAt = DateTime.Now;
+            user.VerificationToken = null;
             
             var result = await base.Update(user);
             if (result.IsFailed)
@@ -88,9 +98,52 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             return Result.Ok("Thank you for verifying. Please log in with your email and password");
         }
 
-        private Result<string> SendVerificationEmail(User user)
+        public async Task ForgotPassword(EmailAddressRequest request)
         {
+            var user = await Repository.FindOneAsync(x => x.EmailAddress == request.EmailAddress);
+            if (user is not null)
+            {
+                user.ResetToken = Generators.GenerateToken();
+                user.ResetExpiry = DateTime.Now.AddHours(1);
+
+                await base.Update(user);
+                await SendResetEmail(user);
+            }
+        }
+
+        public async Task <Result<string>> ResetPassword(ResetPasswordRequest request)
+        { 
+            var user = await Repository.FindOneAsync(x => x.VerificationToken == request.ResetToken && x.ResetExpiry <= DateTime.Now);
+
+            if (user is null)
+            {
+                return Result.Fail<string>(BaseErrors.ObjectNotFound<User>());
+            }
+
+            var info = Generators.GeneratePasswordHash(request.Password);
+            user.PasswordSalt = info.salt;
+            user.PasswordHash = info.hash;
+            user.ResetExpiry = null;
+            user.ResetToken = null;
+
+            var result = await base.Update(user);
+            if (result.IsFailed)
+            {
+                return Result.Fail<string>(result.Errors);
+            }
+
+            return Result.Ok("Your email has been successfully reset, you may now log in.");
+        }
+
+        private async Task<Result<string>> SendVerificationEmail(User user)
+        {
+            await Task.Delay(1);
             return Result.Ok("Thank you, pLease follow the link in the email to verify your registration");
+        }
+
+        private async Task SendResetEmail(User user)
+        {
+            await Task.Delay(1);
         }
     }
 }

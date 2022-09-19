@@ -16,5 +16,4 @@ namespace UltimoLeague.Minimal.Contracts.Requests
     {
         public string ConfirmPassword { get; set; }
     }
-
 }

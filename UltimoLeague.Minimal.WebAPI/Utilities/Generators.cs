@@ -198,9 +198,23 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             return (salt, hash);
         }
 
-        internal static string GenerateVerificationToken()
+        internal static string GenerateToken()
         {
             return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+        }
+
+        internal static bool VerifyUserPasswordHash(User user, string password)
+        {
+            if (user == null)
+            {
+                return false;
+            }
+            
+            using (var hmac = new HMACSHA512(user.PasswordSalt))
+            {
+                var hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return hash.SequenceEqual(user.PasswordHash);
+            }
         }
     }
 }

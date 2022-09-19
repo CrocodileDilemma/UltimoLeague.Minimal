@@ -4,5 +4,6 @@
     {
         public string EmailAddress { get; set; }
         public string Token { get; set; }    
+        public DateTime TokenExpiry { get; set; }
     }
 }
