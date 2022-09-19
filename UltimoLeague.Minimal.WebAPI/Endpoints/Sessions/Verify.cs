@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sessions
 {
     [AllowAnonymous]
-    [HttpPost("sessions/register")]
-    public class Register : Endpoint<SessionRequest, string>
+    [HttpPost("sessions/verify")]
+    public class Verify : Endpoint<VerificationRequest, string>
     {
         private readonly SessionService _service;
-        public Register(SessionService service)
+        public Verify(SessionService service)
         {
             _service = service;
         }
 
-        public override async Task HandleAsync(SessionRequest request, CancellationToken ct)
+        public override async Task HandleAsync(VerificationRequest request, CancellationToken ct)
         {
-            Result<string> result = await _service.Register(request);
+            Result<string> result = await _service.Verify(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);
