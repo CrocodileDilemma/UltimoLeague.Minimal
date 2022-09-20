@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
-using Microsoft.IdentityModel.Tokens;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using System.Security.Cryptography;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Entities;
@@ -65,7 +63,7 @@ namespace UltimoLeague.Minimal.WebAPI.Utilities
             List<DateTime> result = new();
             DateTime matchDay = startDate;
 
-            foreach (int day in matchDays.OrderBy(day => day))
+            foreach (int day in matchDays.OrderBy(d => d))
             {
                 if (day != (int)matchDay.DayOfWeek)
                 {

@@ -4,11 +4,12 @@ using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
 {
-    [HttpGet("sports/getAll")]
-    public class GetAll : EndpointWithoutRequest<IEnumerable<SportDto>>
+    [AllowAnonymous]
+    [HttpGet("sports")]
+    public class Get : EndpointWithoutRequest<IEnumerable<SportMinimalDto>>
     {
         private readonly IBaseService<Sport> _service;
-        public GetAll(IBaseService<Sport> service)
+        public Get(IBaseService<Sport> service)
         {
             _service = service;
         }
@@ -16,7 +17,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
         public override async Task HandleAsync(CancellationToken ct)
         {
             var result = _service.GetAll().AsEnumerable()
-                .Adapt<IEnumerable<SportDto>>();
+                .Adapt<IEnumerable<SportMinimalDto>>();
 
             await SendOkAsync(result, ct);
         }

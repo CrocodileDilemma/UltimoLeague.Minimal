@@ -1,21 +1,21 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using UltimoLeague.Minimal.WebAPI.Services;
 
-namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sessions
+namespace UltimoLeague.Minimal.WebAPI.Endpoints.Users
 {
     [AllowAnonymous]
-    [HttpPost("sessions/reset")]
-    public class Reset : Endpoint<ResetPasswordRequest, string>
+    [HttpPost("users/reset")]
+    public class Reset : Endpoint<ResetPasswordRequest, MessageDto>
     {
-        private readonly SessionService _service;
-        public Reset(SessionService service)
+        private readonly UserService _service;
+        public Reset(UserService service)
         {
             _service = service;
         }
 
         public override async Task HandleAsync(ResetPasswordRequest request, CancellationToken ct)
         {
-            Result<string> result = await _service.ResetPassword(request);
+            Result<MessageDto> result = await _service.ResetPassword(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

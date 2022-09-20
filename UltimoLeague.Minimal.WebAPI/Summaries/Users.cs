@@ -1,6 +1,6 @@
-﻿using UltimoLeague.Minimal.WebAPI.Endpoints.Sessions;
+﻿using UltimoLeague.Minimal.WebAPI.Endpoints.Users;
 
-namespace UltimoLeague.Minimal.WebAPI.Summaries.Sessions
+namespace UltimoLeague.Minimal.WebAPI.Summaries.Users
 {
     public class ForgotPasswordSummary : Summary<ForgotPassword>
     {

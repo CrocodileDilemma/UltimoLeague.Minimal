@@ -50,7 +50,7 @@ namespace UltimoLeague.Minimal.WebAPI
             builder.Services.AddScoped<FixtureService>();
             builder.Services.AddScoped<FixtureResultService>();
             builder.Services.AddScoped<StatisticService>();
-            builder.Services.AddScoped<SessionService>();
+            builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
             app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());

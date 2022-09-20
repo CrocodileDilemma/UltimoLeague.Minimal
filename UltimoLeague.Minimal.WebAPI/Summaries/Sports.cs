@@ -2,6 +2,16 @@
 
 namespace UltimoLeague.Minimal.WebAPI.Summaries.Sports
 {
+    public class GetSummary : Summary<Get>
+    {
+        public GetSummary()
+        {
+            Summary = "Retrieve all Sport Names and Ids";
+            Description = "Retrieve a minimal list of all Sport records (Name and Id).";
+            // Response<IEnumerable<SportDto>>(200, "ok response with body");
+        }
+    }
+
     public class GetAllSummary : Summary<GetAll>
     {
         public GetAllSummary()

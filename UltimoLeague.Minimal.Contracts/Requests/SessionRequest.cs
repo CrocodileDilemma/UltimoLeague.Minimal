@@ -12,7 +12,7 @@ namespace UltimoLeague.Minimal.Contracts.Requests
         public string Password { get; set; }
     }
 
-    public class SessionRegisterRequest : SessionRequest
+    public class RegisterRequest : SessionRequest
     {
         public string ConfirmPassword { get; set; }
     }

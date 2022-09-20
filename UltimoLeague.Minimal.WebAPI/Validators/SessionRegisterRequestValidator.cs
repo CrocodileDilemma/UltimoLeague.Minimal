@@ -2,7 +2,7 @@
 
 namespace UltimoLeague.Minimal.WebAPI.Validators
 {
-    public class SessionRegisterRequestValidator : Validator<SessionRegisterRequest>
+    public class SessionRegisterRequestValidator : Validator<RegisterRequest>
     {
         public SessionRegisterRequestValidator()
         {

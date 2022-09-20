@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using UltimoLeague.Minimal.WebAPI.Services;
 
-namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sessions
+namespace UltimoLeague.Minimal.WebAPI.Endpoints.Users
 {
     [AllowAnonymous]
-    [HttpPost("sessions/logon")]    
+    [HttpPost("users/logon")]    
     public class Logon : Endpoint<SessionRequest, SessionDto>
     {
-        private readonly SessionService _service;
-        public Logon(SessionService service)
+        private readonly UserService _service;
+        public Logon(UserService service)
         {
             _service = service;
         }
