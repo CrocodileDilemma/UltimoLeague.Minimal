@@ -16,7 +16,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Users
 
         public override async Task HandleAsync(ForgotPasswordRequest request, CancellationToken ct)
         {
-            await _service.ForgotPassword(request.EmailAddress);
+            await _service.ForgotPassword(request.EmailAddress, ct);
             await SendOkAsync(UserMessages.ForgotPassword, cancellation: ct);
         }
     }

@@ -15,7 +15,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Users
 
         public override async Task HandleAsync(RegisterRequest request, CancellationToken ct)
         {
-            Result<MessageDto> result = await _service.Register(request);
+            Result<MessageDto> result = await _service.Register(request, ct);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

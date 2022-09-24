@@ -5,13 +5,18 @@ using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
 using UltimoLeague.Minimal.WebAPI.Messages;
 using UltimoLeague.Minimal.WebAPI.Models;
+using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Utilities;
 
 namespace UltimoLeague.Minimal.WebAPI.Services
 {
     public class UserService : BaseService<User>
     {
-        public UserService(IMongoRepository<User> repository) : base(repository) { }
+        private readonly IEmailService _emailService;
+        public UserService(IMongoRepository<User> repository, IEmailService emailService) : base(repository) 
+        {
+            _emailService = emailService;
+        }
 
         public async Task<Result<SessionDto>> Logon(SessionRequest request)
         {
@@ -42,7 +47,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             return Result.Ok(new SessionDto { EmailAddress = request.EmailAddress, Token = jwtToken, TokenExpiry = expiry });
         }
 
-        public async Task<Result<MessageDto>> Register(SessionRequest request)
+        public async Task<Result<MessageDto>> Register(SessionRequest request, CancellationToken cancellationToken)
         {
             User user = await Repository.FindOneAsync(x => x.EmailAddress == request.EmailAddress);
             
@@ -68,7 +73,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 return Result.Fail<MessageDto>(result.Errors);
             }
 
-            return await SendVerificationEmail(user);
+            await _emailService.SendVerificationEmail(user, cancellationToken);
+            return Result.Ok(UserMessages.Registration);
         }
 
         public async Task<Result<MessageDto>> Verify(VerificationRequest request)
@@ -97,7 +103,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             return Result.Ok(UserMessages.Verification);
         }
 
-        public async Task ForgotPassword(string emailAddress)
+        public async Task ForgotPassword(string emailAddress, CancellationToken cancellationToken)
         {
             var user = await Repository.FindOneAsync(x => x.EmailAddress == emailAddress);
             if (user is not null)
@@ -106,13 +112,13 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 user.ResetExpiry = DateTime.Now.AddHours(1);
 
                 await base.Update(user);
-                await SendResetEmail(user);
+                await _emailService.SendResetEmail(user, cancellationToken);
             }
         }
 
         public async Task <Result<MessageDto>> ResetPassword(ResetPasswordRequest request)
         { 
-            var user = await Repository.FindOneAsync(x => x.ResetToken == request.ResetToken && x.ResetExpiry <= DateTime.Now);
+            var user = await Repository.FindOneAsync(x => x.ResetToken == request.ResetToken && x.ResetExpiry >= DateTime.Now);
 
             if (user is null)
             {
@@ -132,17 +138,6 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
 
             return Result.Ok(UserMessages.ResetPassword);
-        }
-
-        private async Task<Result<MessageDto>> SendVerificationEmail(User user)
-        {
-            await Task.Delay(1);
-            return Result.Ok(UserMessages.VerificationEmail);
-        }
-
-        private async Task SendResetEmail(User user)
-        {
-            await Task.Delay(1);
         }
     }
 }

@@ -36,6 +36,11 @@ namespace UltimoLeague.Minimal.WebAPI
                 settings.UseControllerSummaryAsTagDescription = true;
             }, addJWTBearerAuth: true);          
             builder.Services.AddMappings();
+
+
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddSingleton<IEmailSettings>(sp => sp.GetRequiredService<IOptions<EmailSettings>>().Value);
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
             builder.Services.AddSingleton<IMongoDbSettings>(sp => sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             builder.Services.AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>));
@@ -67,7 +72,6 @@ namespace UltimoLeague.Minimal.WebAPI
             });
             app.UseOpenApi();
             app.UseSwaggerUi3(s => s.ConfigureDefaults());
-            app.UseHttpsRedirection();
             
             app.Run();
         }
