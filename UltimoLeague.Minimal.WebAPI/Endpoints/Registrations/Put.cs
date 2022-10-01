@@ -1,8 +1,11 @@
-﻿using UltimoLeague.Minimal.WebAPI.Services;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.WebAPI.Models;
+using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Registrations
 {
     [HttpPut("registrations/{id}")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Put : Endpoint<IdRequest, RegistrationDto>
     {
         private readonly RegistrationService _service;

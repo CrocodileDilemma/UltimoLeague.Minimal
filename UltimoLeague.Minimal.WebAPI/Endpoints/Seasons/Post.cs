@@ -1,9 +1,12 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Seasons
 {
     [HttpPost("seasons")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Post : Endpoint<SeasonRequest, SeasonBaseDto>
     {
         private readonly SeasonService _service;

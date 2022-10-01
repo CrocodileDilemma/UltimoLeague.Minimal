@@ -1,9 +1,12 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
 {
     [HttpPut("sports/{id}")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Put : Endpoint<SportUpdateRequest, SportDto>
     {
         private readonly SportService _service;

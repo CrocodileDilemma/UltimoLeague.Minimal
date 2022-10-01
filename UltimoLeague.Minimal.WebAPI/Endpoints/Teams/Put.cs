@@ -1,4 +1,6 @@
-﻿using UltimoLeague.Minimal.WebAPI.Services;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.WebAPI.Models;
+using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Teams
 {

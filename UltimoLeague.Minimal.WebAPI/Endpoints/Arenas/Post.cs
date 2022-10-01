@@ -1,9 +1,12 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Arenas
 {
     [HttpPost("arenas")]
+    [Authorize(Policy= Policy.AdminOnly)]
     public class Post : Endpoint<ArenaRequest, ArenaDto>
     {
         private readonly ArenaService _service;

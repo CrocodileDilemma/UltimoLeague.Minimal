@@ -1,9 +1,12 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Sports
 {
     [HttpPost("sports")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Post : Endpoint<SportRequest, SportDto>
     {
         private readonly SportService _service;

@@ -1,8 +1,11 @@
-﻿using UltimoLeague.Minimal.WebAPI.Services;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.WebAPI.Models;
+using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Teams
 {
     [HttpPost("teams")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Post : Endpoint<TeamRequest, TeamDto>
     {
         private readonly TeamService _service;

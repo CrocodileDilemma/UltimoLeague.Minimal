@@ -1,9 +1,12 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
+using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Fixtures
 {
     [HttpPut("fixtures/{id}")]
+    [Authorize(Policy = Policy.AdminOnly)]
     public class Put : Endpoint<FixtureUpdateRequest, FixtureDto>
     {
         private readonly FixtureService _service;
