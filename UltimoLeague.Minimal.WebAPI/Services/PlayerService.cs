@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System.Net.Mail;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -58,6 +59,19 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             var teamId = new ObjectId(id);
             var result = _repository.FilterBy(x => x.ActiveTeam.BaseId == teamId);
             return result.Adapt<IEnumerable<PlayerDto>>();
+        }
+
+        public async Task<Result<PlayerDto>> GetByUserId(string id)
+        {
+            var userId = new ObjectId(id);
+            var result = await _repository.FindOneAsync(x => x.UserId == userId);
+
+            if (result is null)
+            {
+                return Result.Fail<PlayerDto>(BaseErrors.ObjectNotFound<Player>());
+            }
+
+            return Result.Ok(result.Adapt<PlayerDto>());
         }
 
         public async Task<Result<PlayerDto>> Post(PlayerRequest request)

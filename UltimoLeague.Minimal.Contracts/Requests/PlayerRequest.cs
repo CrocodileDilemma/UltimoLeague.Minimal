@@ -18,5 +18,6 @@ namespace UltimoLeague.Minimal.Contracts.Requests
     public class PlayerUpdateRequest : PlayerRequest
     {
         public string Id { get; set; }
+        public string UserId { get; set; }
     }
 }

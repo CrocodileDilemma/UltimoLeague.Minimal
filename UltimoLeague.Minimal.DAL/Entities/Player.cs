@@ -13,6 +13,7 @@ namespace UltimoLeague.Minimal.DAL.Entities
         public DateTime DateOfBirth { get; set; }
         public Gender Gender { get; set; }
         public bool Active { get; set; }
+        public ObjectId UserId { get; set; }
         public string MembershipNumber { get; set; }
         public TeamMinimal ActiveTeam { get; set; }
     }

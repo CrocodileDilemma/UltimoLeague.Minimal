@@ -42,6 +42,16 @@ namespace UltimoPlayer.Minimal.WebAPI.Summaries.Players
         }
     }
 
+    public class GetByUserIdSummary : Summary<GetByUserId>
+    {
+        public GetByUserIdSummary()
+        {
+            Summary = "Retrieve a Players by the User Id";
+            Description = "Retrieve a single of Player record by passing the User Id.";
+            // Response<PlayerDto>(200, "ok response with body");
+        }
+    }
+
     public class PostSummary : Summary<Post>
     {
         public PostSummary()
