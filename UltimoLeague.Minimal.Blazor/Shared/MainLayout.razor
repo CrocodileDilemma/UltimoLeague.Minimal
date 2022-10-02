@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+
+@inject IAuthenticationService _authService
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudText Typo="Typo.h5" Class="ml-3">Ultimo League</MudText>
+        <MudSpacer />
+        <AuthorizeView>
+            <Authorized>
+                Hello, @context?.User?.Identity?.Name!
+                <MudIconButton Icon="@Icons.TwoTone.Logout" Color="Color.Inherit" Edge="Edge.End" Title="Logout" OnClick="Logout" />
+            </Authorized>
+            <NotAuthorized>
+                <MudIconButton Icon="@Icons.TwoTone.AppRegistration" Color="Color.Inherit" Edge="Edge.End" Title="Register" OnClick="Register" />
+                <MudIconButton Icon="@Icons.TwoTone.Login" Color="Color.Inherit" Edge="Edge.End" Title="Login" OnClick="Login" />
+            </NotAuthorized>
+        </AuthorizeView>
+    </MudAppBar>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code 
+{
+    private async Task Login()
+    {
+        var result = await _authService.Login(new Contracts.Requests.SessionRequest());  
+    }
+
+    private async Task Logout()
+    {
+        await _authService.Logout();
+    }
+
+    private async Task Register()
+    {
+        var result = await _authService.Register(new Contracts.Requests.RegisterRequest());       
+    }
+}

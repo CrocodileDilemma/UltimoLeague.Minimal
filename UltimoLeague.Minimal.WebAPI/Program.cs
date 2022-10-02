@@ -1,4 +1,4 @@
-global using FastEndpoints;
+﻿global using FastEndpoints;
 global using FluentResults;
 global using Mapster;
 global using UltimoLeague.Minimal.Contracts.Dtos;
