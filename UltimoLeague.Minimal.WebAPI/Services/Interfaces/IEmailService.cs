@@ -6,5 +6,6 @@ namespace UltimoLeague.Minimal.WebAPI.Services.Interfaces
     {
         Task SendResetEmail(User user, CancellationToken cancellationToken);
         Task SendVerificationEmail(User user, CancellationToken cancellationToken);
+        string GetEmailAddress();
     }
 }

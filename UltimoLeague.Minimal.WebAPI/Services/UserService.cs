@@ -1,5 +1,8 @@
 ﻿using FastEndpoints.Security;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Net.Mail;
 using System.Security.Claims;
+using System.Threading;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -138,6 +141,26 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             }
 
             return Result.Ok(UserMessages.ResetPassword);
+        }
+
+        internal void GenerateAdminUser()
+        {
+            var user = Repository.FindOne(x => x.AdminUser);
+            if (user is null)
+            {
+                var info = Generators.GeneratePasswordHash("Admin123");
+
+                user = new User
+                {
+                    EmailAddress = _emailService.GetEmailAddress(),
+                    PasswordHash = info.hash,
+                    PasswordSalt = info.salt,
+                    AdminUser = true,
+                    VerifiedAt = DateTime.Now
+                };
+
+                base.Post(user);
+            }
         }
     }
 }

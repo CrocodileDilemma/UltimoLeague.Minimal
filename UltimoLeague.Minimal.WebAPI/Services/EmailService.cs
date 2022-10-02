@@ -17,6 +17,11 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             _settings = settings;
         }
 
+        public string GetEmailAddress()
+        {
+            return _settings.SmtpSender;
+        }
+
         public async Task SendResetEmail(User user, CancellationToken cancellationToken)
         {
             var email = this.GenerateEmail(user);

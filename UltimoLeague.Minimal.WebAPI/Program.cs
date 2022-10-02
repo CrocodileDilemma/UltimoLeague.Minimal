@@ -6,8 +6,11 @@ global using UltimoLeague.Minimal.Contracts.Requests;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System;
 using System.Data;
 using UltimoLeague.Minimal.DAL.Common;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.DAL.Repositories;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -15,6 +18,7 @@ using UltimoLeague.Minimal.WebAPI.Mapping;
 using UltimoLeague.Minimal.WebAPI.Models;
 using UltimoLeague.Minimal.WebAPI.Services;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
+using UltimoLeague.Minimal.WebAPI.Utilities;
 
 namespace UltimoLeague.Minimal.WebAPI
 {
@@ -72,8 +76,19 @@ namespace UltimoLeague.Minimal.WebAPI
             });
             app.UseOpenApi();
             app.UseSwaggerUi3(s => s.ConfigureDefaults());
+            SeedData(app);
             
             app.Run();
+        }
+
+        public static void SeedData(IApplicationBuilder applicationBuilder)
+        {
+            using (var serviceScope = applicationBuilder.ApplicationServices.GetRequiredService<IServiceScopeFactory>()
+                    .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<UserService>();
+                 context.GenerateAdminUser();
+            }
         }
     }
 }
