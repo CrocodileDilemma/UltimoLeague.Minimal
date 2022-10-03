@@ -1,0 +1,59 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IBaseService _service
+@inject ISnackbar _snackbar
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Verified" Class="mr-3 mb-n1" />
+            Verify New User
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@request" @ref="@form">
+            <MudTextField T="string" Label="Verification Code" Class="mt-3" InputType="InputType.Text"
+                @bind-Value="request.VerificationToken" For="@(() => request.VerificationToken)"
+                Required="true" RequiredError="Verification Token is required!" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="VerifyAsync" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    private VerificationRequest request = new VerificationRequest();
+    private MudForm form;
+    private bool overlayVisible = false;
+
+    private async Task VerifyAsync()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            overlayVisible = true;
+            ErrorOr<MessageDto> result = await _service.Post<MessageDto>("users/verify", request);
+            overlayVisible = false;
+
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add(result.Value.Message, Severity.Success);
+                dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialog.Cancel();
+    }
+}

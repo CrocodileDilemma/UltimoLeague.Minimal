@@ -4,10 +4,9 @@ using UltimoLeague.Minimal.Contracts.Requests;
 
 namespace UltimoLeague.Minimal.Blazor.Interfaces
 {
-    public interface IAuthenticationService
+    public interface IAuthenticationService : IBaseService
     {
         Task<ErrorOr<SessionDto>> Login(SessionRequest request);
         Task Logout();
-        Task<ErrorOr<MessageDto>> Register(RegisterRequest request);
     }
 }

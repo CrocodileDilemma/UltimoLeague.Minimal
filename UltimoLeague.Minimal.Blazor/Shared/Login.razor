@@ -1,7 +1,11 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @inject IAuthenticationService _authService
+@inject IDialogService _dialogService
 @inject ISnackbar _snackbar
 
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
@@ -13,7 +17,7 @@
         <MudForm Model="@request" @ref="@form">
             <MudTextField T="string" Label="Email" Class="mt-3" InputType="InputType.Email"
                           @bind-Value="request.EmailAddress" For="@(() => request.EmailAddress)" 
-                          Required="true" RequiredError="Email is required!"
+                          Required="true" RequiredError="Email is required!" @ref="@txtEmail"
                           Validation="@(new EmailAddressAttribute() { ErrorMessage = "The email address is invalid" })" />
             <MudTextField T="string" Label="Password" Class="mt-3" InputType="InputType.Password"
                           @bind-Value="request.Password" For="@(() => request.Password)"
@@ -21,8 +25,9 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton OnClick="LoginAsync" Color="Color.Primary">Ok</MudButton>
+        <MudButton OnClick="LoginAsync" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="ForgotPasswordAsync" Color="Color.Secondary" Variant="Variant.Filled">Forgot Password</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>       
     </DialogActions>
 </MudDialog>
 
@@ -30,13 +35,18 @@
     [CascadingParameter] MudDialogInstance dialog { get; set; }
     private SessionRequest request = new SessionRequest();
     private MudForm form;
+    private MudTextField<string> txtEmail;
+    private bool overlayVisible = false;
 
     private async Task LoginAsync()
     {
         await form.Validate();
         if (form.IsValid)
         {
+            overlayVisible = true;
             ErrorOr<SessionDto> result = await _authService.Login(request);
+            overlayVisible = false;
+
             if (result.IsError)
             {
                 _snackbar.Add(result.FirstError.Description, Severity.Error);
@@ -45,6 +55,28 @@
             {
                 _snackbar.Add("Login Successful!", Severity.Success);
                 dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private async Task ForgotPasswordAsync()
+    {
+        await txtEmail.Validate();
+        if (!txtEmail.HasErrors)
+        {
+            overlayVisible = true;
+            var forgotPasswordRequest = new ForgotPasswordRequest { EmailAddress = txtEmail.Value };
+            ErrorOr<MessageDto> result = await _authService.Post<MessageDto>("users/forgotPassword", request);
+            overlayVisible = false;
+            
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add(result.Value.Message, Severity.Success);
+                _dialogService.Show<ResetPassword>();
             }
         }
     }
