@@ -4,18 +4,18 @@ using UltimoLeague.Minimal.WebAPI.Services;
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Users
 {
     [AllowAnonymous]
-    [HttpPost("users/logon")]    
-    public class Logon : Endpoint<SessionRequest, SessionDto>
+    [HttpPost("users/login")]    
+    public class Login : Endpoint<SessionRequest, SessionDto>
     {
         private readonly UserService _service;
-        public Logon(UserService service)
+        public Login(UserService service)
         {
             _service = service;
         }
 
         public override async Task HandleAsync(SessionRequest request, CancellationToken ct)
         {
-            Result<SessionDto> result = await _service.Logon(request);
+            Result<SessionDto> result = await _service.Login(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

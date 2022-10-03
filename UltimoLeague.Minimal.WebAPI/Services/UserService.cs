@@ -1,8 +1,5 @@
 ﻿using FastEndpoints.Security;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.Net.Mail;
 using System.Security.Claims;
-using System.Threading;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -21,7 +18,7 @@ namespace UltimoLeague.Minimal.WebAPI.Services
             _emailService = emailService;
         }
 
-        public async Task<Result<SessionDto>> Logon(SessionRequest request)
+        public async Task<Result<SessionDto>> Login(SessionRequest request)
         {
             User user = await Repository.FindOneAsync(x => x.EmailAddress == request.EmailAddress);
             

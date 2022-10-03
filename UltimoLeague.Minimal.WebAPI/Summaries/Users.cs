@@ -12,11 +12,11 @@ namespace UltimoLeague.Minimal.WebAPI.Summaries.Users
         }
     }
 
-    public class LogonSummary : Summary<Logon>
+    public class LoginSummary : Summary<Login>
     {
-        public LogonSummary()
+        public LoginSummary()
         {
-            Summary = "Logon with an Email Address and Password";
+            Summary = "Login with an Email Address and Password";
             Description = "Create a session by logging in with am Email Address and Password.";
             // Response<ArenaDto>(200, "ok response with body");
         }
