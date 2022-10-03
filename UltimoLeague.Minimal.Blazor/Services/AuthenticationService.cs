@@ -8,6 +8,8 @@ using UltimoLeague.Minimal.Blazor.Authentication;
 using UltimoLeague.Minimal.Contracts.Dtos;
 using UltimoLeague.Minimal.Contracts.Requests;
 using UltimoLeague.Minimal.Blazor.Interfaces;
+using ErrorOr;
+using System;
 
 namespace UltimoLeague.Minimal.Blazor.Services
 {
@@ -26,28 +28,59 @@ namespace UltimoLeague.Minimal.Blazor.Services
             _localStorage = localStorage;
         }
 
-        public async Task<MessageDto> Register(RegisterRequest request)
+        public async Task<ErrorOr<MessageDto>> Register(RegisterRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync<RegisterRequest>("users/register", request);
-            return JsonSerializer.Deserialize<MessageDto>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var response = await _httpClient.PostAsJsonAsync("users/register", request);
+            try
+            {
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return JsonSerializer.Deserialize<MessageDto>(content);
+                }
+
+                var error = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(error))
+                {
+                    return Error.Validation();
+                }
+
+                return Error.Validation(description: error);
+            }
+            catch (Exception ex)
+            {
+                return Error.Unexpected(ex.InnerException is null ? ex.Message : ex.InnerException.Message);
+            }
         }
 
-        public async Task<SessionDto> Login(SessionRequest request)
+        public async Task<ErrorOr<SessionDto>> Login(SessionRequest request)
         {
-            var loginAsJson = JsonSerializer.Serialize(request);
-            var response = await _httpClient.PostAsync("users/logon", new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-            var loginResult = JsonSerializer.Deserialize<SessionDto>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (!response.IsSuccessStatusCode)
+            var response = await _httpClient.PostAsJsonAsync("users/login", request);
+            
+            try
             {
-                return loginResult;
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<SessionDto>();
+                    await _localStorage.SetItemAsync("authToken", result.Token);
+                    ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(result.EmailAddress);
+                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Token);
+                    return result;
+                }
+
+                var error = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(error))
+                {
+                    return Error.Validation();
+                }
+
+                return Error.Validation(description:error);
             }
-
-            await _localStorage.SetItemAsync("authToken", loginResult.Token);
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(request.EmailAddress);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.Token);
-
-            return loginResult;
+            catch (Exception ex)
+            {
+                return Error.Unexpected(ex.InnerException is null ? ex.Message : ex.InnerException.Message);
+            }
         }
 
         public async Task Logout()

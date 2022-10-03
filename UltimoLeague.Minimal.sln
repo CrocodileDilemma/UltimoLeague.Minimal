@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimoLeague.Minimal.DAL", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimoLeague.Minimal.Contracts", "UltimoLeague.Minimal.Contracts\UltimoLeague.Minimal.Contracts.csproj", "{16BC4CCA-DDEC-4169-8AC0-B9E2E6A5A1A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UltimoLeague.Minimal.Blazor", "UltimoLeague.Minimal.Blazor\UltimoLeague.Minimal.Blazor.csproj", "{49F31C0C-76B6-4873-82BD-3646C4ACFE14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UltimoLeague.Minimal.Blazor", "UltimoLeague.Minimal.Blazor\UltimoLeague.Minimal.Blazor.csproj", "{49F31C0C-76B6-4873-82BD-3646C4ACFE14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

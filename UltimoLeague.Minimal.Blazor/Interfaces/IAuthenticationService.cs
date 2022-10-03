@@ -1,12 +1,13 @@
-﻿using UltimoLeague.Minimal.Contracts.Dtos;
+﻿using ErrorOr;
+using UltimoLeague.Minimal.Contracts.Dtos;
 using UltimoLeague.Minimal.Contracts.Requests;
 
 namespace UltimoLeague.Minimal.Blazor.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<SessionDto> Login(SessionRequest request);
+        Task<ErrorOr<SessionDto>> Login(SessionRequest request);
         Task Logout();
-        Task<MessageDto> Register(RegisterRequest request);
+        Task<ErrorOr<MessageDto>> Register(RegisterRequest request);
     }
 }

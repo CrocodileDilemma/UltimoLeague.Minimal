@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 @inject IAuthenticationService _authService
+@inject IDialogService _dialogService
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -16,8 +17,8 @@
                 <MudIconButton Icon="@Icons.TwoTone.Logout" Color="Color.Inherit" Edge="Edge.End" Title="Logout" OnClick="Logout" />
             </Authorized>
             <NotAuthorized>
-                <MudIconButton Icon="@Icons.TwoTone.AppRegistration" Color="Color.Inherit" Edge="Edge.End" Title="Register" OnClick="Register" />
-                <MudIconButton Icon="@Icons.TwoTone.Login" Color="Color.Inherit" Edge="Edge.End" Title="Login" OnClick="Login" />
+                <MudIconButton Icon="@Icons.TwoTone.AppRegistration" Color="Color.Inherit" Edge="Edge.End" Title="Register" OnClick="HandleRegister" />
+                <MudIconButton Icon="@Icons.TwoTone.Login" Color="Color.Inherit" Edge="Edge.End" Title="Login" OnClick="HandleLogin" />
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
@@ -30,18 +31,19 @@
 
 @code 
 {
-    private async Task Login()
+    private async void HandleLogin()
     {
-        var result = await _authService.Login(new Contracts.Requests.SessionRequest());  
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true };
+        var dialog = _dialogService.Show<Login>("Login", options);
+        var result = await dialog.Result;
+
     }
 
-    private async Task Logout()
-    {
-        await _authService.Logout();
-    }
+    private async Task Logout() => await _authService.Logout();
 
-    private async Task Register()
+    private void HandleRegister()
     {
-        var result = await _authService.Register(new Contracts.Requests.RegisterRequest());       
+        var options = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true };
+        _dialogService.Show<Register>("Login", options);
     }
 }
