@@ -1,7 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Security.Claims
+@inherits LayoutComponentBase
 
 @inject IAuthenticationService _authService
 @inject IDialogService _dialogService
+@inject NavigationManager _nm
 
 <MudThemeProvider />
 <MudDialogProvider CloseOnEscapeKey="true" FullWidth="true"/>
@@ -11,22 +13,31 @@
     <MudAppBar Elevation="1">
         <MudText Typo="Typo.h5" Class="ml-3">Ultimo League</MudText>
         <MudSpacer />
-        <MudMenu Icon="@Icons.TwoTone.Person" Color="Color.Inherit" Size="Size.Medium" 
-            AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopRight">
-                <AuthorizeView>
-                    <Authorized>
-                        Hello, @context?.User?.Identity?.Name!
-                    <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Logout"
-                               Color="Color.Inherit" OnClick="HandleLogout" FullWidth="true">Logout</MudButton>
-                    </Authorized>
-                    <NotAuthorized>
-                        <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.AppRegistration"
-                               Color="Color.Inherit" OnClick="HandleRegister" FullWidth="true">Register</MudButton>
-                        <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Login"
-                               Color="Color.Inherit" OnClick="HandleLogin" FullWidth="true">Login</MudButton>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </MudMenu>
+        <AuthorizeView>
+            <Authorized>
+                <MudMenu Color="Color.Inherit" Size="Size.Medium" Label=@context?.User?.FindFirst(ClaimTypes.Email)?.Value
+                         AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopRight">
+                    <ActivatorContent>
+                        <MudAvatar Color="Color.Success" Variant="Variant.Outlined">@context?.User?.Identity?.Name?.Substring(0,1)</MudAvatar>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Edit"
+                            Color="Color.Inherit" OnClick="HandleLogout" FullWidth="true">Edit Profile</MudButton>
+                        <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Logout"
+                            Color="Color.Inherit" OnClick="HandleLogout" FullWidth="true">Logout</MudButton>
+                    </ChildContent>
+                </MudMenu>
+            </Authorized>
+            <NotAuthorized>
+                <MudMenu Icon="@Icons.TwoTone.Person" Color="Color.Inherit" Size="Size.Medium" 
+                    AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopRight" Label="Login">
+                    <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.AppRegistration"
+                        Color="Color.Inherit" OnClick="HandleRegister" FullWidth="true">Register</MudButton>
+                    <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Login"
+                        Color="Color.Inherit" OnClick="HandleLogin" FullWidth="true">Login</MudButton>
+                </MudMenu>
+            </NotAuthorized>
+        </AuthorizeView>       
     </MudAppBar>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
@@ -37,9 +48,33 @@
 
 @code 
 {
-    private void HandleLogin() => _dialogService.Show<Login>("Login");
+    private async Task HandleLogin() 
+    {
+        await ShowDialog(_dialogService.Show<Login>("Login"));
+    }
 
-    private async Task HandleLogout() => await _authService.Logout();
+    private async Task HandleLogout()
+    {
+        await _authService.Logout();
+        this.StateHasChanged();
+    }
 
-    private void HandleRegister() => _dialogService.Show<Register>("Register New User");
+    private async Task HandleProfile()
+    {
+        await ShowDialog(_dialogService.Show<Profile>("Edit Profile"));
+    }
+
+    private async Task HandleRegister()
+    {
+        await ShowDialog(_dialogService.Show<Register>("Register New User"));
+    }
+
+    private async Task ShowDialog(IDialogReference dialog)
+    {
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            this.StateHasChanged();
+        }
+    }
 }

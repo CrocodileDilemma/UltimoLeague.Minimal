@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -23,7 +24,13 @@ builder.Services.AddMudServices(config =>
 });
 
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddAuthorizationCore();
+builder.Services.AddOptions();
+builder.Services.AddAuthorizationCore(config =>
+{
+    config.AddPolicy("adminonly", new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser().RequireRole("admin").Build());
+});
+
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

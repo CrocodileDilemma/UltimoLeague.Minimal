@@ -1,8 +1,14 @@
 ﻿using Blazored.LocalStorage;
+using DnsClient;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Net.Http.Headers;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
 
 namespace UltimoLeague.Minimal.Blazor.Authentication
 {
@@ -16,6 +22,7 @@ namespace UltimoLeague.Minimal.Blazor.Authentication
             _httpClient = httpClient;
             _localStorage = localStorage;
         }
+
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var savedToken = await _localStorage.GetItemAsync<string>("authToken");
@@ -26,55 +33,53 @@ namespace UltimoLeague.Minimal.Blazor.Authentication
             }
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(savedToken), "jwt")));
+            return new AuthenticationState(this.CreatePrincipal(savedToken));
         }
 
         public void MarkUserAsAuthenticated(string token)
         {
-            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
+            var authenticatedUser = CreatePrincipal(token);
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
         }
 
         public void MarkUserAsLoggedOut()
         {
-            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+            var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
             NotifyAuthenticationStateChanged(authState);
+        }
+
+        private ClaimsPrincipal CreatePrincipal(string token)
+        {
+            return new ClaimsPrincipal(new
+                ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth"));
         }
 
         private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
         {
-            var claims = new List<Claim>();
-            var payload = jwt.Split('.')[1];
-            var jsonBytes = ParseBase64WithoutPadding(payload);
-            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-
-            keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
-
-            if (roles != null)
+            try
             {
-                if (roles.ToString().Trim().StartsWith("["))
-                {
-                    var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
+                var payload = jwt.Split('.')[1];
+                var jsonBytes = ParseBase64WithoutPadding(payload);
+                var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-                    foreach (var parsedRole in parsedRoles)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, parsedRole));
-                    }
-                }
-                else
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
-                }
+                keyValuePairs.TryGetValue("role", out object roles);
+                keyValuePairs.TryGetValue("email", out object email);
+                keyValuePairs.TryGetValue("nameid", out object nameid);
+                keyValuePairs.TryGetValue("unique_name", out object name);
 
-                keyValuePairs.Remove(ClaimTypes.Role);
+                return new List<Claim>
+                {
+                    new Claim(ClaimTypes.Role, roles.ToString()),
+                    new Claim(ClaimTypes.Email, email.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, nameid.ToString()),
+                    new Claim(ClaimTypes.Name, name.ToString())
+                };
             }
-
-            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
-
-            return claims;
+            catch (Exception)
+            {
+                return new List<Claim>();
+            }
         }
 
         private byte[] ParseBase64WithoutPadding(string base64)

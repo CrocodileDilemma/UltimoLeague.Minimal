@@ -87,7 +87,7 @@ namespace UltimoLeague.Minimal.WebAPI
                     .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<UserService>();
-                 context.GenerateAdminUser();
+                context.GenerateAdminUser();
             }
         }
     }

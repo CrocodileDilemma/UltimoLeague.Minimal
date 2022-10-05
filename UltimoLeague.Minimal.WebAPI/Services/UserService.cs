@@ -41,7 +41,8 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 claims: new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.EmailAddress)
+                    new Claim(ClaimTypes.Email, user.EmailAddress),
+                    new Claim(ClaimTypes.Name, user.EmailAddress)
                 });
 
             return Result.Ok(new SessionDto { EmailAddress = request.EmailAddress, Token = jwtToken, TokenExpiry = expiry });
