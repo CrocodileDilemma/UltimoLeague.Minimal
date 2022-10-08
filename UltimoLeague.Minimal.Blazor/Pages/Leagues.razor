@@ -1,7 +1,31 @@
 ﻿@page "/leagues"
 
+@inject IBaseService _service
+@inject ISnackbar _snackbar
+
 <h3>Leagues</h3>
+<MudDataGrid Items="@leagues">
+    <Columns>
+        <Column T="LeagueDto" Field="Name" Title="Name" />
+        <Column T="LeagueDto" Field="Level" />
+        <Column T="LeagueDto" Field="Gender" />
+        <Column T="LeagueDto" Field=@nameof(LeagueDto.Sport.SportName) />
+    </Columns>
+</MudDataGrid>
 
 @code {
+    private IEnumerable<LeagueDto> leagues = Enumerable.Empty<LeagueDto>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>("leagues");
+        if (result.IsError)
+        {
+            _snackbar.Add(result.FirstError.Description, Severity.Error);
+        }
+        else
+        {
+            leagues = result.Value;
+        }
+    }
 }

@@ -1,51 +1,31 @@
 ﻿@page "/"
 
-@inject IBaseService _service
-@inject ISnackbar _snackbar
-
 <PageTitle>Ultimo League</PageTitle>
 <MudText Typo="Typo.h4" GutterBottom="true">Welcome to Ultimo League</MudText>
 <MudText Class="mb-8" GutterBottom="true">Please select a sport below to begin!</MudText>
-<MudGrid>
-@foreach (var sport in sports)
-{
-    <MudItem xs="4">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8" onclick="@(() => HandleSportClick(sport.Id))">@sport.SportName</MudPaper>
-    </MudItem>
-}
-</MudGrid>
 
-
+<MudCarousel Class="mud-width-full" Style="height:200px;" ShowArrows="true" ShowBullets="@true" EnableSwipeGesture="@true" 
+    AutoCycle="@true" TData="object">
+    <MudCarouselItem Transition="Transition.Slide" Color="@Color.Primary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="Transition.Fade" Color="@Color.Secondary">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+    <MudCarouselItem Transition="Transition.Slide">
+        <div class="d-flex" style="height:100%">
+            <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Color="@Color.Primary" Size="@Size.Large" />
+        </div>
+    </MudCarouselItem>
+</MudCarousel>
 
 @code{
-    private IEnumerable<SportMinimalDto> sports = Enumerable.Empty<SportMinimalDto>();
-
     protected override async Task OnInitializedAsync()
     {
-        ErrorOr<IEnumerable<SportMinimalDto>> result = await _service.Get<IEnumerable<SportMinimalDto>>("sports");
-        if (result.IsError)
-        {
-            _snackbar.Add(result.FirstError.Description, Severity.Error);
-        }
-        else
-        {
-            sports = result.Value;
-        }
-    }
-
-    private async Task HandleSportClick(string sportId)
-    {
-        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>($"leagues/getBySportId/{sportId}");
-        if (result.IsError)
-        {
-            _snackbar.Add(result.FirstError.Description, Severity.Error);
-        }
-        else
-        {
-            foreach (var league in result.Value)
-            {
-                _snackbar.Add($"{ league.Code } - { league.Name }", Severity.Normal);
-            }
-        }
+        await base.OnInitializedAsync();
     }
 }

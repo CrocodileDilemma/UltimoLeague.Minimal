@@ -1,7 +1,29 @@
 ﻿@page "/arenas"
 
+@inject IBaseService _service
+@inject ISnackbar _snackbar
+
 <h3>Arenas</h3>
+<MudDataGrid Items="@arenas">
+    <Columns>
+        <Column T="ArenaDto" Field="ArenaName" Title="Arena Name" />
+        <Column T="ArenaDto" Field="Id" />
+    </Columns>
+</MudDataGrid>
 
 @code {
+    private IEnumerable<ArenaDto> arenas = Enumerable.Empty<ArenaDto>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>("arenas");
+        if (result.IsError)
+        {
+            _snackbar.Add(result.FirstError.Description, Severity.Error);
+        }
+        else
+        {
+            arenas = result.Value;
+        }
+    }
 }
