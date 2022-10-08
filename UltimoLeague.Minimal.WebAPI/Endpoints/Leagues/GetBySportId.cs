@@ -1,9 +1,11 @@
-﻿using UltimoLeague.Minimal.DAL.Entities;
+﻿using Microsoft.AspNetCore.Authorization;
+using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.WebAPI.Mapping;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Leagues
 {
+    [AllowAnonymous]
     [HttpGet("leagues/getBySportId/{id}")]
     public class GetBySportId : Endpoint<IdRequest, IEnumerable<LeagueDto>>
     {

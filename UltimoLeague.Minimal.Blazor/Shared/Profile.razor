@@ -1,5 +1,59 @@
-﻿<h3>Profile</h3>
+﻿@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@inject IBaseService _service
+@inject ISnackbar _snackbar
+@attribute [Authorize]
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.EditAttributes" Class="mr-3 mb-n1" />
+            Register New User
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@player" @ref="@form">
+            <MudTextField T="string" Label="First Name" Class="mt-3" InputType="InputType.Text"
+                          @bind-Value="player.FirstName" For="@(() => player.FirstName)"
+                            Required="true" RequiredError="First Name is required!" />
+            <MudTextField T="string" Label="Last Name" Class="mt-3" InputType="InputType.Text"
+                          @bind-Value="player.LastName" For="@(() => player.LastName)"
+                            Required="true" RequiredError="Last Name is required!" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter] Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    private PlayerDto player = new();
+    private MudForm form;
+    private bool overlayVisible = true;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateTask;
+        var user = authState.User;
+        ErrorOr <PlayerDto> result = await _service.Get<PlayerDto>($"players/getByEmail/{user?.FindFirst(ClaimTypes.Email)?.Value}");
+        overlayVisible = false;
+        if (result.IsError)
+        {
+            _snackbar.Add(result.FirstError.Description, Severity.Error);
+        }
+        else
+        {
+            player = result.Value;
+            if (player is null)
+            {
+                _snackbar.Add("Player Not Found!", Severity.Error);
+            }
+        }
+    }
 }

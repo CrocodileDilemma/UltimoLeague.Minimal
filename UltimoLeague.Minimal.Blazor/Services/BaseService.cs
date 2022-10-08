@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Net.Http.Json;
 using UltimoLeague.Minimal.Blazor.Interfaces;
+using UltimoLeague.Minimal.Contracts.Requests;
 
 namespace UltimoLeague.Minimal.Blazor.Services
 {
@@ -19,6 +20,17 @@ namespace UltimoLeague.Minimal.Blazor.Services
         public async Task<ErrorOr<T>> Post<T>(string uri, object request)
         {
             var response = await _httpClient.PostAsJsonAsync(uri, request);
+            return await this.HandleResponse<T>(response);
+        }
+
+        public async Task<ErrorOr<T>> Get<T>(string uri)
+        {
+            var response = await _httpClient.GetAsync(uri);
+            return await this.HandleResponse<T>(response);
+        }
+
+        private async Task<ErrorOr<T>> HandleResponse<T>(HttpResponseMessage response)
+        {
             try
             {
                 string content = await response.Content.ReadAsStringAsync();

@@ -11,6 +11,7 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
+        <MudIconButton Icon="@ToggleIcon()" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudText Typo="Typo.h5" Class="ml-3">Ultimo League</MudText>
         <MudSpacer />
         <AuthorizeView>
@@ -22,7 +23,7 @@
                     </ActivatorContent>
                     <ChildContent>
                         <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Edit"
-                            Color="Color.Inherit" OnClick="HandleLogout" FullWidth="true">Edit Profile</MudButton>
+                            Color="Color.Inherit" OnClick="HandleProfile" FullWidth="true">Edit Profile</MudButton>
                         <MudButton Variant="Variant.Text" EndIcon="@Icons.TwoTone.Logout"
                             Color="Color.Inherit" OnClick="HandleLogout" FullWidth="true">Logout</MudButton>
                     </ChildContent>
@@ -39,8 +40,20 @@
             </NotAuthorized>
         </AuthorizeView>       
     </MudAppBar>
+    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu Color="Color.Inherit">
+            <MudNavLink Match="NavLinkMatch.All" Href="/sports">Sports</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/arenas">Arenas</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/leagues">Leagues</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/teams">Teams</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/players">Players</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/fixtures">Fixtures</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/results">Results</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/statistics">Statistics</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
+        <MudContainer MaxWidth="MaxWidth.Large">
             @Body
         </MudContainer>
     </MudMainContent>
@@ -48,6 +61,18 @@
 
 @code 
 {
+    private bool drawerOpen = false;
+
+    private void ToggleDrawer()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private string ToggleIcon()
+    {
+        return drawerOpen ? Icons.Material.Filled.MoreHoriz : Icons.Material.Filled.MoreVert;
+    }
+
     private async Task HandleLogin() 
     {
         await ShowDialog(_dialogService.Show<Login>("Login"));
