@@ -40,20 +40,21 @@
             </NotAuthorized>
         </AuthorizeView>       
     </MudAppBar>
-    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Docked" Elevation="2">
         <MudNavMenu Color="Color.Inherit">
-            <MudNavLink Match="NavLinkMatch.All" Href="/sports">Sports</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/arenas">Arenas</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/leagues">Leagues</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/teams">Teams</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/players">Players</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/fixtures">Fixtures</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/results">Results</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/statistics">Statistics</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.TwoTone.Home">Home</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/sports" Icon="@Icons.TwoTone.Sports">Sports</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/arenas" Icon="@Icons.TwoTone.SportsBasketball">Arenas</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/leagues" Icon="@Icons.TwoTone.TableRows">Leagues</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/teams" Icon="@Icons.TwoTone.Groups">Teams</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/players" Icon="@Icons.TwoTone.People">Players</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/fixtures" Icon="@Icons.TwoTone.Score">Fixtures</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/results" Icon="@Icons.TwoTone.Scoreboard">Results</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/statistics"Icon="@Icons.TwoTone.Percent">Statistics</MudNavLink>
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large">
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge"> 
             @Body
         </MudContainer>
     </MudMainContent>

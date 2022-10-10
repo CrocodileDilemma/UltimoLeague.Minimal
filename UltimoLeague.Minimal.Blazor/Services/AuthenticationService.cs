@@ -11,14 +11,12 @@ namespace UltimoLeague.Minimal.Blazor.Services
 {
     public class AuthenticationService : BaseService, IAuthenticationService
     {
-        private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly ILocalStorageService _localStorage;
 
         public AuthenticationService(HttpClient httpClient,
                            AuthenticationStateProvider authenticationStateProvider,
-                           ILocalStorageService localStorage) : base(httpClient)
+                           ILocalStorageService localStorage) : base(httpClient, authenticationStateProvider)
         {
-            _authenticationStateProvider = authenticationStateProvider;
             _localStorage = localStorage;
         }
 
@@ -29,7 +27,7 @@ namespace UltimoLeague.Minimal.Blazor.Services
             if (!result.IsError)
             {
                 await _localStorage.SetItemAsync("authToken", result.Value.Token);
-                ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(result.Value.Token);
+                ((ApiAuthenticationStateProvider)AuthStateProvider).MarkUserAsAuthenticated(result.Value.Token);
                 HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", result.Value.Token);
             }
 
@@ -38,9 +36,7 @@ namespace UltimoLeague.Minimal.Blazor.Services
 
         public async Task Logout()
         {
-            await _localStorage.RemoveItemAsync("authToken");
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
-            HttpClient.DefaultRequestHeaders.Authorization = null;
+            ((ApiAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();          
         }
     }
 }

@@ -3,15 +3,7 @@
 @inject IBaseService _service
 @inject ISnackbar _snackbar
 
-<h3>Leagues</h3>
-<MudDataGrid Items="@leagues">
-    <Columns>
-        <Column T="LeagueDto" Field="Name" Title="Name" />
-        <Column T="LeagueDto" Field="Level" />
-        <Column T="LeagueDto" Field="Gender" />
-        <Column T="LeagueDto" Field=@nameof(LeagueDto.Sport.SportName) />
-    </Columns>
-</MudDataGrid>
+
 
 @code {
     private IEnumerable<LeagueDto> leagues = Enumerable.Empty<LeagueDto>();

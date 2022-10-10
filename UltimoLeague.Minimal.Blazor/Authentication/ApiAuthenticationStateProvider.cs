@@ -9,6 +9,8 @@ using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading;
+using static MudBlazor.CategoryTypes;
+using static MudBlazor.FilterOperator;
 
 namespace UltimoLeague.Minimal.Blazor.Authentication
 {
@@ -32,8 +34,23 @@ namespace UltimoLeague.Minimal.Blazor.Authentication
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
 
+            var authenticatedUser = CreatePrincipal(savedToken);
+            if (TokenExpired(authenticatedUser))
+            {
+                await MarkUserAsLoggedOut();
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
             return new AuthenticationState(this.CreatePrincipal(savedToken));
+        }
+
+        private bool TokenExpired(ClaimsPrincipal authenticatedUser)
+        {
+            var expiry = authenticatedUser.FindFirst(ClaimTypes.Expiration);
+            var ticks = long.Parse(expiry.Value);
+            var tokenDate = DateTimeOffset.FromUnixTimeSeconds(ticks).UtcDateTime;
+            return tokenDate < System.DateTime.Now.ToUniversalTime();
         }
 
         public void MarkUserAsAuthenticated(string token)
@@ -43,9 +60,11 @@ namespace UltimoLeague.Minimal.Blazor.Authentication
             NotifyAuthenticationStateChanged(authState);
         }
 
-        public void MarkUserAsLoggedOut()
+        public async Task MarkUserAsLoggedOut()
         {
             var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+            _httpClient.DefaultRequestHeaders.Authorization = null;
+            await _localStorage.RemoveItemAsync("authToken");
             NotifyAuthenticationStateChanged(authState);
         }
 
@@ -67,13 +86,15 @@ namespace UltimoLeague.Minimal.Blazor.Authentication
                 keyValuePairs.TryGetValue("email", out object email);
                 keyValuePairs.TryGetValue("nameid", out object nameid);
                 keyValuePairs.TryGetValue("unique_name", out object name);
+                keyValuePairs.TryGetValue("exp", out object expiry);
 
                 return new List<Claim>
                 {
                     new Claim(ClaimTypes.Role, roles.ToString()),
                     new Claim(ClaimTypes.Email, email.ToString()),
                     new Claim(ClaimTypes.NameIdentifier, nameid.ToString()),
-                    new Claim(ClaimTypes.Name, name.ToString())
+                    new Claim(ClaimTypes.Name, name.ToString()),
+                    new Claim(ClaimTypes.Expiration, expiry.ToString())
                 };
             }
             catch (Exception)
