@@ -3,6 +3,15 @@
 @inject IBaseService _service
 @inject ISnackbar _snackbar
 
+<MudDataGrid Items="@leagues">
+    <Columns>
+        <Column T="LeagueDto" Field="@nameof(LeagueDto.Code)" Title="Code" />
+        <Column T="LeagueDto" Field="@nameof(LeagueDto.Name)" Title="Name" />
+        <Column T="LeagueDto" Field="@nameof(LeagueDto.Gender)" Title="Gender" /> 
+        <Column T="LeagueDto" Field="@nameof(LeagueDto.Level)" Title="Level" />
+        <Column T="LeagueDto" Field="@nameof(LeagueDto.Sport.SportName)" Title="Sport" />
+    </Columns>
+</MudDataGrid>
 
 
 @code {

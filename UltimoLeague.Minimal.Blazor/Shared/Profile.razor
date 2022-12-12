@@ -17,11 +17,11 @@
     <DialogContent>
         <MudForm Model="@player" @ref="@form">
             <MudTextField T="string" Label="First Name" Class="mt-3" InputType="InputType.Text"
-                          @bind-Value="player.FirstName" For="@(() => player.FirstName)"
-                            Required="true" RequiredError="First Name is required!" />
+                @bind-Value="player.FirstName" For="@(() => player.FirstName)"
+                Required="true" RequiredError="First Name is required!" />
             <MudTextField T="string" Label="Last Name" Class="mt-3" InputType="InputType.Text"
-                          @bind-Value="player.LastName" For="@(() => player.LastName)"
-                            Required="true" RequiredError="Last Name is required!" />
+                @bind-Value="player.LastName" For="@(() => player.LastName)"
+                Required="true" RequiredError="Last Name is required!" />
         </MudForm>
     </DialogContent>
     <DialogActions>
