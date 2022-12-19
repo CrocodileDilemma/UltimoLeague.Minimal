@@ -1,7 +1,12 @@
 ﻿@page "/teams"
+@inherits MainPageBase
 
 <h3>Teams</h3>
 
-@code {
-
+@code 
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 }

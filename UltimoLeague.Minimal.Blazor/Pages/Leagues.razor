@@ -1,5 +1,5 @@
 ﻿@page "/leagues"
-
+@inherits MainPageBase
 @inject IBaseService _service
 @inject ISnackbar _snackbar
 
@@ -15,18 +15,20 @@
 
 
 @code {
-    private IEnumerable<LeagueDto> leagues = Enumerable.Empty<LeagueDto>();
+    private List<LeagueDto> leagues { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>("leagues");
+        await base.OnInitializedAsync();
+
+        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>($"leagues/getBySportId/{ currentSport?.Id }");
         if (result.IsError)
         {
             _snackbar.Add(result.FirstError.Description, Severity.Error);
         }
-        else
+        else if (result.Value is not null)
         {
-            leagues = result.Value;
+            leagues = result.Value.ToList();
         }
     }
 }

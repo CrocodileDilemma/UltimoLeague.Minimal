@@ -2,6 +2,8 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
+using System.Net;
+using System.Security.AccessControl;
 using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Interfaces;
 
@@ -9,14 +11,16 @@ namespace UltimoLeague.Minimal.DAL.Repositories
 {
     public class MongoRepository<T> : IMongoRepository<T> where T : IBaseEntity
     {
+        private readonly IMongoDatabase _database;
         private readonly IMongoCollection<T> _collection;
         private readonly FindOptions findOptions = new FindOptions { Collation = new Collation("en", strength: CollationStrength.Primary) };
 
         public MongoRepository(IMongoDbSettings settings)
         {
-            var database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DbName);
-            _collection = database.GetCollection<T>(GetCollectionName(typeof(T)));
+            _database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DbName);
+            _collection = _database.GetCollection<T>(GetCollectionName(typeof(T)));
         }
+
         private protected string GetCollectionName(Type documentType)
         {
             return ((BsonCollectionAttribute)documentType.GetCustomAttributes(
@@ -158,6 +162,16 @@ namespace UltimoLeague.Minimal.DAL.Repositories
         public MongoDBRef GetDbRef(string id)
         {
             return new MongoDBRef(GetCollectionName(typeof(T)), new ObjectId(id));
+        }
+
+        public List<string> GetAllCollections()
+        {
+            return _database.ListCollectionNames().ToList();
+        }
+
+        public void CreateCollection(string collectionName)
+        {
+            _database.CreateCollection(collectionName); 
         }
     }
 }

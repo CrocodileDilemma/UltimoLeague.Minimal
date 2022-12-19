@@ -1,116 +1,107 @@
 ﻿using Blazored.LocalStorage;
-using DnsClient;
 using Microsoft.AspNetCore.Components.Authorization;
-using MudBlazor;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Net.Http.Headers;
-using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading;
-using static MudBlazor.CategoryTypes;
-using static MudBlazor.FilterOperator;
 
-namespace UltimoLeague.Minimal.Blazor.Authentication
+namespace UltimoLeague.Minimal.Blazor.Authentication;
+
+public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 {
-    public class ApiAuthenticationStateProvider : AuthenticationStateProvider
+    private readonly HttpClient _httpClient;
+    private readonly ILocalStorageService _localStorage;
+
+    public ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
     {
-        private readonly HttpClient _httpClient;
-        private readonly ILocalStorageService _localStorage;
+        _httpClient = httpClient;
+        _localStorage = localStorage;
+    }
 
-        public ApiAuthenticationStateProvider(HttpClient httpClient, ILocalStorageService localStorage)
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+    {
+        var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+
+        if (string.IsNullOrWhiteSpace(savedToken))
         {
-            _httpClient = httpClient;
-            _localStorage = localStorage;
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        var authenticatedUser = CreatePrincipal(savedToken);
+        if (TokenExpired(authenticatedUser))
         {
-            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
+            await MarkUserAsLoggedOut();
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
 
-            if (string.IsNullOrWhiteSpace(savedToken))
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
+        return new AuthenticationState(this.CreatePrincipal(savedToken));
+    }
+
+    private bool TokenExpired(ClaimsPrincipal authenticatedUser)
+    {
+        var expiry = authenticatedUser.FindFirst(ClaimTypes.Expiration);
+        var ticks = long.Parse(expiry.Value);
+        var tokenDate = DateTimeOffset.FromUnixTimeSeconds(ticks).UtcDateTime;
+        return tokenDate < System.DateTime.Now.ToUniversalTime();
+    }
+
+    public void MarkUserAsAuthenticated(string token)
+    {
+        var authenticatedUser = CreatePrincipal(token);
+        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
+
+    public async Task MarkUserAsLoggedOut()
+    {
+        var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+        await _localStorage.RemoveItemAsync("authToken");
+        NotifyAuthenticationStateChanged(authState);
+    }
+
+    private ClaimsPrincipal CreatePrincipal(string token)
+    {
+        return new ClaimsPrincipal(new
+            ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth"));
+    }
+
+    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        try
+        {
+            var payload = jwt.Split('.')[1];
+            var jsonBytes = ParseBase64WithoutPadding(payload);
+            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+            keyValuePairs.TryGetValue("role", out object roles);
+            keyValuePairs.TryGetValue("email", out object email);
+            keyValuePairs.TryGetValue("nameid", out object nameid);
+            keyValuePairs.TryGetValue("unique_name", out object name);
+            keyValuePairs.TryGetValue("exp", out object expiry);
+
+            return new List<Claim>
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-
-            var authenticatedUser = CreatePrincipal(savedToken);
-            if (TokenExpired(authenticatedUser))
-            {
-                await MarkUserAsLoggedOut();
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", savedToken);
-            return new AuthenticationState(this.CreatePrincipal(savedToken));
+                new Claim(ClaimTypes.Role, roles.ToString()),
+                new Claim(ClaimTypes.Email, email.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, nameid.ToString()),
+                new Claim(ClaimTypes.Name, name.ToString()),
+                new Claim(ClaimTypes.Expiration, expiry.ToString())
+            };
         }
-
-        private bool TokenExpired(ClaimsPrincipal authenticatedUser)
+        catch (Exception)
         {
-            var expiry = authenticatedUser.FindFirst(ClaimTypes.Expiration);
-            var ticks = long.Parse(expiry.Value);
-            var tokenDate = DateTimeOffset.FromUnixTimeSeconds(ticks).UtcDateTime;
-            return tokenDate < System.DateTime.Now.ToUniversalTime();
+            return new List<Claim>();
         }
+    }
 
-        public void MarkUserAsAuthenticated(string token)
+    private byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
         {
-            var authenticatedUser = CreatePrincipal(token);
-            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-            NotifyAuthenticationStateChanged(authState);
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
         }
-
-        public async Task MarkUserAsLoggedOut()
-        {
-            var authState = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
-            _httpClient.DefaultRequestHeaders.Authorization = null;
-            await _localStorage.RemoveItemAsync("authToken");
-            NotifyAuthenticationStateChanged(authState);
-        }
-
-        private ClaimsPrincipal CreatePrincipal(string token)
-        {
-            return new ClaimsPrincipal(new
-                ClaimsIdentity(ParseClaimsFromJwt(token), "apiauth"));
-        }
-
-        private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
-        {
-            try
-            {
-                var payload = jwt.Split('.')[1];
-                var jsonBytes = ParseBase64WithoutPadding(payload);
-                var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-
-                keyValuePairs.TryGetValue("role", out object roles);
-                keyValuePairs.TryGetValue("email", out object email);
-                keyValuePairs.TryGetValue("nameid", out object nameid);
-                keyValuePairs.TryGetValue("unique_name", out object name);
-                keyValuePairs.TryGetValue("exp", out object expiry);
-
-                return new List<Claim>
-                {
-                    new Claim(ClaimTypes.Role, roles.ToString()),
-                    new Claim(ClaimTypes.Email, email.ToString()),
-                    new Claim(ClaimTypes.NameIdentifier, nameid.ToString()),
-                    new Claim(ClaimTypes.Name, name.ToString()),
-                    new Claim(ClaimTypes.Expiration, expiry.ToString())
-                };
-            }
-            catch (Exception)
-            {
-                return new List<Claim>();
-            }
-        }
-
-        private byte[] ParseBase64WithoutPadding(string base64)
-        {
-            switch (base64.Length % 4)
-            {
-                case 2: base64 += "=="; break;
-                case 3: base64 += "="; break;
-            }
-            return Convert.FromBase64String(base64);
-        }
+        return Convert.FromBase64String(base64);
     }
 }

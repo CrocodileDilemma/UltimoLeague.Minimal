@@ -1,7 +1,12 @@
 ﻿@page "/statistics"
+@inherits MainPageBase
 
 <h3>Statistics</h3>
 
-@code {
-
+@code 
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 }

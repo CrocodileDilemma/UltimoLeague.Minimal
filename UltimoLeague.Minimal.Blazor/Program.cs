@@ -34,5 +34,6 @@ builder.Services.AddAuthorizationCore(config =>
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IBaseService, BaseService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<ISessionService, SessionService>();
 
 await builder.Build().RunAsync();

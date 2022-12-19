@@ -1,5 +1,8 @@
 ﻿using FastEndpoints.Security;
+using Namotion.Reflection;
+using System.Reflection;
 using System.Security.Claims;
+using UltimoLeague.Minimal.DAL.Common;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.DAL.Interfaces;
 using UltimoLeague.Minimal.WebAPI.Errors;
@@ -158,6 +161,22 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 };
 
                 base.Post(user);
+
+                var collections = Repository.GetAllCollections();
+
+                foreach (Type type in Assembly.GetAssembly(typeof(BaseEntity)).GetTypes()
+                    .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(BaseEntity))))
+                {
+                    string collectionName = ((BsonCollectionAttribute)type.GetCustomAttributes(
+                        typeof(BsonCollectionAttribute),
+                        true)
+                    .FirstOrDefault())?.CollectionName;
+
+                    if (collectionName is not null && !collections.Contains(collectionName))
+                    {
+                        Repository.CreateCollection(collectionName);
+                    }
+                }
             }
         }
     }

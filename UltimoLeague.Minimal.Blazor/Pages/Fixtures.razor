@@ -1,7 +1,12 @@
 ﻿@page "/fixtures"
+@inherits MainPageBase
 
 <h3>Fixtures</h3>
 
-@code {
-
+@code 
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 }

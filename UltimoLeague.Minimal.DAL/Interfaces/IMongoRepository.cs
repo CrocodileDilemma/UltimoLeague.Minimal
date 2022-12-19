@@ -49,5 +49,7 @@ namespace UltimoLeague.Minimal.DAL.Interfaces
 
         Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression);
         MongoDBRef GetDbRef(string id);
+        List<string> GetAllCollections();
+        void CreateCollection(string collectionName);
     }
 }

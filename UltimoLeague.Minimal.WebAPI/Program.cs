@@ -86,8 +86,8 @@ namespace UltimoLeague.Minimal.WebAPI
             using (var serviceScope = applicationBuilder.ApplicationServices.GetRequiredService<IServiceScopeFactory>()
                     .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<UserService>();
-                context.GenerateAdminUser();
+                var userContext = serviceScope.ServiceProvider.GetService<UserService>();
+                userContext.GenerateAdminUser();
             }
         }
     }

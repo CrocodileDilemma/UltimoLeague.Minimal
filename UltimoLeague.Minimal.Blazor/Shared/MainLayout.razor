@@ -1,8 +1,6 @@
-﻿@using System.Security.Claims
-@inherits LayoutComponentBase
-
+﻿@using System.Security.Claims;
+@inherits MainPageBase
 @inject IAuthenticationService _authService
-@inject IDialogService _dialogService
 @inject NavigationManager _nm
 
 <MudThemeProvider />
@@ -43,7 +41,7 @@
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Docked" Elevation="2">
         <MudNavMenu Color="Color.Inherit">
             <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.TwoTone.Home">Home</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/sports" Icon="@Icons.TwoTone.Sports">Sports</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" OnClick="HandleCurrentSport" Icon="@Icons.TwoTone.Sports">@(currentSport?.SportName ?? "[Select Sport]")</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/arenas" Icon="@Icons.TwoTone.SportsBasketball">Arenas</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/leagues" Icon="@Icons.TwoTone.TableRows">Leagues</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/teams" Icon="@Icons.TwoTone.Groups">Teams</MudNavLink>
@@ -63,6 +61,11 @@
 @code 
 {
     private bool drawerOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
 
     private void ToggleDrawer()
     {

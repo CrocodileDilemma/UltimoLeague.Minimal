@@ -1,0 +1,54 @@
+﻿@inject IBaseService _service
+@inject ISnackbar _snackbar
+@inject ISessionService _sessionService
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Sports" Class="mr-3 mb-n1" />
+            Select a Sport
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="SportMinimalDto" Label="Select a Sport" Variant="Variant.Outlined" ValueChanged="OnValueChanged">
+            @foreach (SportMinimalDto sport in sports)
+            {
+                <MudSelectItem Value="@sport">@sport.SportName</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    private bool overlayVisible = true;
+    private List<SportMinimalDto> sports { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ErrorOr<IEnumerable<SportMinimalDto>> result = await _service.Get<IEnumerable<SportMinimalDto>>($"sports");
+        overlayVisible = false;
+        if (result.IsError)
+        {
+            _snackbar.Add(result.FirstError.Description, Severity.Error);
+        }
+        else
+        {
+            sports = result.Value.ToList();
+        }
+    }
+
+    private async void OnValueChanged(SportMinimalDto value)
+    {
+        if (value is null)
+        {
+            return;
+        }
+
+        await _sessionService.SetCurrentSport(value);      
+        dialog.Close(DialogResult.Ok(value));
+    }
+}

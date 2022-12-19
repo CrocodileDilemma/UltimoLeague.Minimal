@@ -1,5 +1,5 @@
 ﻿@page "/arenas"
-
+@inherits MainPageBase
 @inject IBaseService _service
 @inject ISnackbar _snackbar
 
@@ -12,18 +12,21 @@
 </MudDataGrid>
 
 @code {
-    private IEnumerable<ArenaDto> arenas = Enumerable.Empty<ArenaDto>();
+    private List<ArenaDto> arenas = new();
 
     protected override async Task OnInitializedAsync()
     {
-        ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>("arenas");
+        await base.OnInitializedAsync();
+
+        ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>($"arenas");
+        
         if (result.IsError)
         {
             _snackbar.Add(result.FirstError.Description, Severity.Error);
         }
-        else
+        else if (result.Value is not null)
         {
-            arenas = result.Value;
+            arenas = result.Value.ToList();
         }
     }
 }
