@@ -41,4 +41,14 @@ namespace UltimoLeague.Minimal.WebAPI.Summaries
             Response<ArenaDto>(200, "ok response with body");
         }
     }
+
+    public class PutSummary : Summary<Put>
+    {
+        public PutSummary()
+        {
+            Summary = "Update an existing Arena";
+            Description = "Update an existing Arena record.";
+            Response<ArenaDto>(200, "ok response with body");
+        }
+    }
 }

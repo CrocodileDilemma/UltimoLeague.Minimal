@@ -140,7 +140,7 @@
             }
             else
             {
-                _snackbar.Add($"Team {request.Name} was {(string.IsNullOrEmpty(currentTeam.Id) ? "Created" : "Updated")}!", Severity.Success);
+                _snackbar.Add($"Team {request.Name} was {(currentTeam is null ? "Created" : "Updated")}!", Severity.Success);
                 dialog.Close(DialogResult.Ok(true));
             }
         }

@@ -10,7 +10,7 @@
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Stadium" Class="mr-3 mb-n1" />
-            Add New Arena
+            @(currentArena is null ? "Add New Arena" : "Edit Arena")
         </MudText>
     </TitleContent>
     <DialogContent>
@@ -28,9 +28,18 @@
 
 @code {
     [CascadingParameter] MudDialogInstance dialog { get; set; }
+    [Parameter] public ArenaDto currentArena { get; set; }
     private ArenaRequest request = new ArenaRequest();
     private MudForm form;
     private bool overlayVisible = false;
+
+    protected override void OnParametersSet()
+    {
+        if (currentArena is not null)
+        {
+            request.ArenaName = currentArena.ArenaName;
+        }
+    }
 
     private async Task Submit()
     {
@@ -38,7 +47,23 @@
         if (form.IsValid)
         {
             overlayVisible = true;
-            ErrorOr<ArenaDto> result = await _service.Post<ArenaDto>("arenas", request);
+            ErrorOr<ArenaDto> result;
+
+            if (currentArena is null)
+            {
+                result = await _service.Post<ArenaDto>("arenas", request);
+            }
+            else
+            {
+                ArenaDto arenaUpdateRequest = new()
+                {
+                    ArenaName = request.ArenaName,
+                    Id = currentArena.Id
+                };
+
+                result = await _service.Put<ArenaDto>($"arenas/{currentArena.Id}", arenaUpdateRequest);
+            }
+
             overlayVisible = false;
 
             if (result.IsError)
@@ -47,7 +72,7 @@
             }
             else
             {
-                _snackbar.Add($"Arena { request.ArenaName } was Createed!", Severity.Success);
+                _snackbar.Add($"Arena {request.ArenaName} was { (currentArena is null ? "Created" : "Updated")}!", Severity.Success);
                 dialog.Close(DialogResult.Ok(true));
             }
         }

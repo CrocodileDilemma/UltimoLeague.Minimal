@@ -1,49 +1,95 @@
 ﻿@page "/arenas"
-@inherits MainPageBase
 @inject IBaseService _service
-@inject ISnackbar _snackbar
+@inject IDialogService _dialogService
 
-<MudGrid>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
-            <MudFab Icon="@Icons.Material.Filled.Add" Color="Color.Primary" IconSize="Size.Large" Title="Add new Arena" OnClick="HandleAdd" />
-        </MudPaper>
-    </MudItem>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<ArenaDto>>>(LoadData))" Hover="true" @ref="table"
+          Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Teams</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudIconButton Title="Add New Arena" Size="@Size.Medium" Icon="@Icons.Filled.Add" Class="pa-0" Color="Color.Primary" OnClick="@HandleAdd" /></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Name" T="ArenaDto">Arena Name</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudIconButton Title="Edit Arena" Size="@Size.Small" Icon="@Icons.Filled.Edit" Class="pa-0" Color="Color.Primary" OnClick="@(() => HandleEdit(context))" /></MudTd>
+        <MudTd DataLabel="Name">@context.ArenaName</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No arenas so far</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+</MudTable>
 
-    @foreach (var arena in arenas)
-    {
-        <MudItem xs="3">
-            <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
-                @arena.ArenaName
-            </MudPaper>
-         </MudItem>
-    }
-</MudGrid>
-@code {
-    private List<ArenaDto> arenas { get; set; } = new();
+@code
+{
+    private IEnumerable<ArenaDto> arenas;
+    private MudTable<ArenaDto> table;
+    private int totalItems;
+    private string searchString = null;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
-        ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>($"arenas");
-        if (!result.IsError)
-        {
-            arenas = result.Value.ToList();
-        }
     }
 
     private async Task HandleAdd()
     {
-        var result = await _dialogService.Show<ArenaDialog>("Add Arena").Result;
+        await ShowDialog(_dialogService.Show<ArenaDialog>("Add Arena"));
+    }
+
+    private async Task HandleEdit(ArenaDto arena)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("currentArena", arena);
+        await ShowDialog(_dialogService.Show<ArenaDialog>("Edit Arena", parameters));
+    }
+
+    private async Task ShowDialog(IDialogReference dialog)
+    {
+        var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            await LoadData();
-            this.StateHasChanged();
+            await table.ReloadServerData();
         }
+    }
+
+    private async Task<TableData<ArenaDto>> LoadData(TableState state)
+    {
+        ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>("arenas");
+
+        if (result.IsError)
+        {
+            return new();
+        }
+
+        IEnumerable<ArenaDto> data = result.Value;
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            data = data.Where(x => x.ArenaName.Contains(searchString));
+        }
+
+        totalItems = data.Count();
+
+        switch (state.SortLabel)
+        {
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.ArenaName);
+                break;
+        }
+
+        arenas = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<ArenaDto>() { TotalItems = totalItems, Items = data };
+    }
+
+    private async Task OnSearch(string text)
+    {
+        searchString = text;
+        await table.ReloadServerData();
     }
 }

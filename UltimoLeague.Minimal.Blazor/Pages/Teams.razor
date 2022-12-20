@@ -1,6 +1,6 @@
 ﻿@page "/teams"
-@inherits MainPageBase
 @inject IBaseService _service
+@inject IDialogService _dialogService
 
 <MudTable ServerData="@(new Func<TableState, Task<TableData<TeamDto>>>(LoadData))" Hover="true" @ref="table"
           Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
@@ -63,7 +63,7 @@
         var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            table.ReloadServerData();
+            await table.ReloadServerData();
         }
     }
 
@@ -108,9 +108,9 @@
         return new TableData<TeamDto>() { TotalItems = totalItems, Items = data };
     }
 
-    private void OnSearch(string text)
+    private async Task OnSearch(string text)
     {
         searchString = text;
-        table.ReloadServerData();
+        await table.ReloadServerData();
     }
 }
