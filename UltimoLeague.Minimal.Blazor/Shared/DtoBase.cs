@@ -6,7 +6,7 @@
         public string Display { get; set; }
         public string MasterId { get; set; }
 
-        public DtoBase(string id, string display, string masterId)
+        public DtoBase(string id, string display, string masterId = "")
         {
             Id = id;
             Display = display;

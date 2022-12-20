@@ -12,4 +12,9 @@ namespace UltimoLeague.Minimal.Contracts.Requests
         public Gender Gender { get; set; } = Gender.None;
         public string SportId { get; set; }
     }
+
+    public class LeagueUpdateRequest : LeagueRequest
+    {
+        public string Id { get; set; }
+    }
 }

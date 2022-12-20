@@ -1,0 +1,121 @@
+﻿@page "/sports"
+@inject IBaseService _service
+@inject IDialogService _dialogService
+
+<MudTable ServerData="@(new Func<TableState, Task<TableData<SportDto>>>(LoadData))" Hover="true" @ref="table"
+          Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Sports</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudIconButton Title="Add New Sport" Size="@Size.Medium" Icon="@Icons.Filled.Add" Class="pa-0" Color="Color.Primary" OnClick="@HandleAdd" /></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Name" T="SportDto">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Duration" T="SportDto">Duration</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Leeway" T="SportDto">Leeway</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Win" T="SportDto">Points for Win</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Draw" T="SportDto">Points for Draw</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Loss" T="SportDto">Points for Loss</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudIconButton Title="Edit Sport" Size="@Size.Small" Icon="@Icons.Filled.Edit" Class="pa-0" Color="Color.Primary" OnClick="@(() => HandleEdit(context))" /></MudTd>
+        <MudTd DataLabel="Name">@context.SportName</MudTd>
+        <MudTd DataLabel="Duration">@context.Duration</MudTd>
+        <MudTd DataLabel="Leeway">@context.Leeway</MudTd>
+        <MudTd DataLabel="Win">@context.PointsForWin</MudTd>
+        <MudTd DataLabel="Draw">@context.PointsForDraw</MudTd>
+        <MudTd DataLabel="Loss">@context.PointsForLoss</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No sports so far</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+</MudTable>
+
+@code
+{
+    private IEnumerable<SportDto> sports;
+    private MudTable<SportDto> table;
+    private int totalItems;
+    private string searchString = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleAdd()
+    {
+        await ShowDialog(_dialogService.Show<SportDialog>("Add Sport"));
+    }
+
+    private async Task HandleEdit(SportDto sport)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("currentSport", sport);
+        await ShowDialog(_dialogService.Show<SportDialog>("Edit Sport", parameters));
+    }
+
+    private async Task ShowDialog(IDialogReference dialog)
+    {
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            await table.ReloadServerData();
+        }
+    }
+
+    private async Task<TableData<SportDto>> LoadData(TableState state)
+    {
+        ErrorOr<IEnumerable<SportDto>> result = await _service.Get<IEnumerable<SportDto>>("sports");
+
+        if (result.IsError)
+        {
+            return new();
+        }
+
+        IEnumerable<SportDto> data = result.Value;
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            data = data.Where(x => x.SportName.Contains(searchString) || x.Leeway.ToString().Contains(searchString) || x.PointsForWin.ToString().Contains(searchString) ||
+                x.Duration.ToString().Contains(searchString) || x.PointsForLoss.ToString().Contains(searchString) || x.PointsForDraw.ToString().Contains(searchString));
+        }
+
+        totalItems = data.Count();
+
+        switch (state.SortLabel)
+        {
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.SportName);
+                break;
+            case "Duration":
+                data = data.OrderByDirection(state.SortDirection, o => o.Duration);
+                break;
+            case "Leeway":
+                data = data.OrderByDirection(state.SortDirection, o => o.Leeway);
+                break;
+            case "Win":
+                data = data.OrderByDirection(state.SortDirection, o => o.PointsForWin);
+                break;
+            case "Draw":
+                data = data.OrderByDirection(state.SortDirection, o => o.PointsForDraw);
+                break;
+            case "Loss":
+                data = data.OrderByDirection(state.SortDirection, o => o.PointsForLoss);
+                break;
+        }
+
+        sports = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<SportDto>() { TotalItems = totalItems, Items = data };
+    }
+
+    private async Task OnSearch(string text)
+    {
+        searchString = text;
+        await table.ReloadServerData();
+    }
+}

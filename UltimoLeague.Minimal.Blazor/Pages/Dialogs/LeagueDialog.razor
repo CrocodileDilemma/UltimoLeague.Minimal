@@ -10,7 +10,7 @@
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Leaderboard" Class="mr-3 mb-n1" />
-            Add New League
+            @(currentLeague is null ? "Add New League" : "Edit League")
         </MudText>
     </TitleContent>
     <DialogContent>
@@ -21,6 +21,21 @@
             <MudTextField T="string" Label="Name" Class="mt-3" InputType="InputType.Text"
                 @bind-Value="request.Name" For="@(() => request.Name)"
                 Required="true" RequiredError="A Name is required!" />
+            <MudTextField T="int" Label="Level" Class="mt-3" InputType="InputType.Number"
+                          @bind-Value="request.Level" For="@(() => request.Level)" />
+            <MudRadioGroup @bind-SelectedOption="request.Gender">
+                <MudRadio Option="@(DAL.Common.Gender.None)">None</MudRadio>
+                <MudRadio Option="@(DAL.Common.Gender.Male)">Male</MudRadio>
+                <MudRadio Option="@(DAL.Common.Gender.Female)">Female</MudRadio>
+            </MudRadioGroup>
+            <MudSelect T="DtoBase" Label="Sport" Variant="Variant.Text" AnchorOrigin="Origin.BottomCenter"
+                       @bind-Value="selectedSport" For="@(() => selectedSport)"
+                       Required="true" RequiredError="A Sport is required!">
+                @foreach (var sport in sports)
+                {
+                    <MudSelectItem Value="@(new DtoBase(sport.Id, sport.SportName))" />
+                }
+            </MudSelect>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -31,10 +46,47 @@
 
 @code {
     [CascadingParameter] MudDialogInstance dialog { get; set; }
-    [Parameter] public string sportId { get; set; }
+    [Parameter] public LeagueDto currentLeague { get; set; }
     private LeagueRequest request = new LeagueRequest();
     private MudForm form;
-    private bool overlayVisible = false;
+    private bool overlayVisible = true;
+    private IEnumerable<SportMinimalDto> sports = Enumerable.Empty<SportMinimalDto>();
+    private DtoBase selectedSport { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (currentLeague is not null)
+        {
+            request.Code = currentLeague.Code;
+            request.Name = currentLeague.Name;
+            request.Gender = currentLeague.Gender;
+            request.Level = currentLeague.Level;
+            request.SportId = currentLeague.Sport.Id;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ErrorOr<IEnumerable<SportMinimalDto>> result = await _service.Get<IEnumerable<SportMinimalDto>>("sports");
+        overlayVisible = false;
+        if (!result.IsError)
+        {
+            sports = result.Value;
+            
+            if (currentLeague is not null)
+            {
+                var sport = sports.FirstOrDefault(x => x.Id == currentLeague.Sport.Id);
+                if (sport is not null)
+                {
+                    selectedSport = new DtoBase(sport.Id, sport.SportName);
+                }
+                else
+                {
+                    request.SportId = null;
+                }
+            }
+        }
+    }
 
     private async Task Submit()
     {
@@ -42,8 +94,27 @@
         if (form.IsValid)
         {
             overlayVisible = true;
-            request.SportId = sportId;
-            ErrorOr<LeagueDto> result = await _service.Post<LeagueDto>("leagues", request);
+            ErrorOr<LeagueDto> result;
+
+            if (currentLeague is null)
+            {
+                result = await _service.Post<LeagueDto>("league", request);
+            }
+            else
+            {
+                LeagueUpdateRequest updateRequest = new()
+                {
+                    Code = request.Code,
+                    Name = request.Name,
+                    Gender = request.Gender,
+                    Level = request.Level,
+                    SportId = request.SportId,
+                    Id = currentLeague.Id
+                };
+
+                result = await _service.Put<LeagueDto>($"league/{currentLeague.Id}", request);
+            }
+
             overlayVisible = false;
 
             if (result.IsError)
@@ -52,7 +123,7 @@
             }
             else
             {
-                _snackbar.Add($"League { request.Name } was Createed!", Severity.Success);
+                _snackbar.Add($"League {request.Name} was {(currentLeague is null ? "Created" : "Updated")}!", Severity.Success);
                 dialog.Close(DialogResult.Ok(true));
             }
         }

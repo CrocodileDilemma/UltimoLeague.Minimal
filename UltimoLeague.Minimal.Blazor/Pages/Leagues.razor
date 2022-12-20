@@ -1,51 +1,116 @@
 ﻿@page "/leagues"
-@inherits MainPageBase
 @inject IBaseService _service
+@inject IDialogService _dialogService
 
-<MudGrid>
-    <MudItem xs="3">
-        <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
-                <MudFab Icon="@Icons.Material.Filled.Add" Color="Color.Primary" IconSize="Size.Large" Title="Add new League" OnClick="HandleAdd"/>
-        </MudPaper>
-    </MudItem>
-  
-    @foreach (var league in leagues)
-    {
-        <MudItem xs="3">
-            <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
-                @league.Name
-            </MudPaper>
-        </MudItem>
-    }
-</MudGrid>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<LeagueDto>>>(LoadData))" Hover="true" @ref="table"
+          Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Leagues</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudIconButton Title="Add New League" Size="@Size.Medium" Icon="@Icons.Filled.Add" Class="pa-0" Color="Color.Primary" OnClick="@HandleAdd" /></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Code" T="LeagueDto">Code</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Name" T="LeagueDto">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Gender" T="LeagueDto">Gender</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Level" T="LeagueDto">Level</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Sport" T="LeagueDto">Sport</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudIconButton Title="Edit League" Size="@Size.Small" Icon="@Icons.Filled.Edit" Class="pa-0" Color="Color.Primary" OnClick="@(() => HandleEdit(context))" /></MudTd>
+        <MudTd DataLabel="Code">@context.Code</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Gender">@context.Gender.ToString()</MudTd>
+        <MudTd DataLabel="Level">@context.Level</MudTd>
+        <MudTd DataLabel="Sport">@context.Sport.SportName</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No leagues so far</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+</MudTable>
 
-@code {
-    private List<LeagueDto> leagues { get; set; } = new();
+@code
+{
+    private IEnumerable<LeagueDto> leagues;
+    private MudTable<LeagueDto> table;
+    private int totalItems;
+    private string searchString = null;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await LoadData();
-    }
-
-    private async Task LoadData()
-    {
-        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>($"leagues/getBySportId/{currentSport.Id}");
-        if (!result.IsError)
-        {
-            leagues = result.Value.ToList();
-        }
     }
 
     private async Task HandleAdd()
     {
+        await ShowDialog(_dialogService.Show<LeagueDialog>("Add League"));
+    }
+
+    private async Task HandleEdit(LeagueDto league)
+    {
         var parameters = new DialogParameters();
-        parameters.Add("sportId", currentSport.Id);
-        var result = await _dialogService.Show<LeagueDialog>("Add League", parameters).Result;
+        parameters.Add("currentLeague", league);
+        await ShowDialog(_dialogService.Show<LeagueDialog>("Edit League", parameters));
+    }
+
+    private async Task ShowDialog(IDialogReference dialog)
+    {
+        var result = await dialog.Result;
         if (!result.Cancelled)
         {
-            await LoadData();
-            this.StateHasChanged();
+            await table.ReloadServerData();
         }
+    }
+
+    private async Task<TableData<LeagueDto>> LoadData(TableState state)
+    {
+        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>("leagues");
+
+        if (result.IsError)
+        {
+            return new();
+        }
+
+        IEnumerable<LeagueDto> data = result.Value;
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            data = data.Where(x => x.Code.Contains(searchString) || x.Name.Contains(searchString) || x.Gender.ToString().Contains(searchString) ||
+                x.Sport.SportName.Contains(searchString) || x.Level.ToString().Contains(searchString));
+        }
+
+        totalItems = data.Count();
+
+        switch (state.SortLabel)
+        {
+            case "Code":
+                data = data.OrderByDirection(state.SortDirection, o => o.Code);
+                break;
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "Gender":
+                data = data.OrderByDirection(state.SortDirection, o => o.Gender);
+                break;
+            case "Level":
+                data = data.OrderByDirection(state.SortDirection, o => o.Level);
+                break;
+            case "Sport":
+                data = data.OrderByDirection(state.SortDirection, o => o.Sport.SportName);
+                break;
+        }
+
+        leagues = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<LeagueDto>() { TotalItems = totalItems, Items = data };
+    }
+
+    private async Task OnSearch(string text)
+    {
+        searchString = text;
+        await table.ReloadServerData();
     }
 }

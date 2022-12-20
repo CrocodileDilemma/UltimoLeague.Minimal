@@ -15,14 +15,14 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@request" @ref="@form">
-            <MudField Label="Team Information" Variant="Variant.Filled">
+            <MudField Label="Team Information" Variant="Variant.Outlined">
                 <MudTextField T="string" Label="Code" InputType="InputType.Text"
                           @bind-Value="request.Code" For="@(() => request.Code)"
                           Required="true" RequiredError="A Code is required!" />
                 <MudTextField T="string" Label="Name" InputType="InputType.Text"
                           @bind-Value="request.Name" For="@(() => request.Name)"
                           Required="true" RequiredError="A Name is required!" />
-                <MudSelect T="DtoBase" Label="League" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter"
+                <MudSelect T="DtoBase" Label="League" Variant="Variant.Text" AnchorOrigin="Origin.BottomCenter"
                            Required="true" RequiredError="A League is required!" @bind-Value="selectedLeague" For="@(() => selectedLeague)">
                     @foreach (var league in leagues)
                     {
@@ -30,7 +30,7 @@
                     }
                 </MudSelect>
             </MudField>
-            <MudField Label="Contact Information" Variant="Variant.Filled" Class="mt-3">
+            <MudField Label="Contact Information" Variant="Variant.Outlined" Class="mt-3">
                     <MudTextField T="string" Label="First Name" InputType="InputType.Text"
                           @bind-Value="request.ContactFirstName" For="@(() => request.ContactFirstName)"
                           Required="true" RequiredError="A Contact First Name is required!" />

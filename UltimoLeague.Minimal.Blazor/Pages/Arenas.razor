@@ -5,7 +5,7 @@
 <MudTable ServerData="@(new Func<TableState, Task<TableData<ArenaDto>>>(LoadData))" Hover="true" @ref="table"
           Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Teams</MudText>
+        <MudText Typo="Typo.h6">Arenas</MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
             AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>

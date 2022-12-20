@@ -1,0 +1,146 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IBaseService _service
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.SportsBasketball" Class="mr-3 mb-n1" />
+            @(currentSport is null ? "Add New Sport" : "Edit Sport")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@request" @ref="@form">
+            <MudTabs Rounded="true" ApplyEffectsToContainer="true">
+                <MudTabPanel Text="Sport Information" Icon="@Icons.Material.Filled.SportsBasketball">
+                    <MudTextField T="string" Label="Name" InputType="InputType.Text"
+                              @bind-Value="request.SportName" For="@(() => request.SportName)"
+                              Required="true" RequiredError="A Name is required!" />
+                    <MudStack Row="true">             
+                        <MudTextField T="int" Label="Duration" InputType="InputType.Text"
+                                  @bind-Value="request.Duration" For="@(() => request.Duration)"
+                                  Required="true" RequiredError="A Duration is required!" />
+                        <MudTextField T="int" Label="Leeway" InputType="InputType.Text"
+                                  @bind-Value="request.Leeway" For="@(() => request.Leeway)"
+                                  Required="true" RequiredError="A Leeway is required!" />
+                </MudStack>
+                    <MudField Label="Points for.." Variant="Variant.Outlined">
+                    <MudStack Row="true">             
+                            <MudTextField T="int" Label="Win" InputType="InputType.Text"
+                                          @bind-Value="request.PointsForWin" For="@(() => request.PointsForWin)"/>
+                            <MudTextField T="int" Label="Bye" InputType="InputType.Text"
+                                          @bind-Value="request.PointsForBye" For="@(() => request.PointsForBye)" />
+                    </MudStack>
+                    <MudStack Row="true">
+                            <MudTextField T="int" Label="Loss" InputType="InputType.Text"
+                                          @bind-Value="request.PointsForLoss" For="@(() => request.PointsForLoss)"/>
+                            <MudTextField T="int" Label="Forfeit" InputType="InputType.Text"
+                                          @bind-Value="request.PointsForForfeit" For="@(() => request.PointsForForfeit)" />  
+                    </MudStack>
+                    <MudGrid Justify="Justify.FlexStart">
+                        <MudItem xs="6">
+                            <MudTextField T="int" Label="Draw" InputType="InputType.Text"
+                                      @bind-Value="request.PointsForDraw" For="@(() => request.PointsForDraw)" />
+                        </MudItem>
+                    </MudGrid>
+                </MudField>
+                </MudTabPanel>
+                <MudTabPanel Text="Description" Icon="@Icons.Material.Filled.ShortText">
+                    <MudTextField T="string" Label="Description" InputType="InputType.Text" Lines="10"
+                              @bind-Value="request.Description" For="@(() => request.Description)"
+                              Required="true" RequiredError="A Description is required!" />
+                </MudTabPanel>
+                <MudTabPanel Text="Rules" Icon="@Icons.Material.Filled.Sports">
+                    <MudTextField T="string" Label="Rules" InputType="InputType.Text" Lines="10"
+                        @bind-Value="request.Rules" For="@(() => request.Rules)" />
+                </MudTabPanel>
+            </MudTabs>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    [Parameter] public SportDto currentSport { get; set; }
+    private SportRequest request = new SportRequest();
+    private MudForm form;
+    private bool overlayVisible = false;
+    private List<LeagueDto> leagues { get; set; } = new();
+    private DtoBase selectedLeague { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (currentSport is not null)
+        {
+            request.Duration = currentSport.Duration;
+            request.PointsForLoss = currentSport.PointsForLoss;
+            request.PointsForDraw = currentSport.PointsForDraw;
+            request.PointsForBye = currentSport.PointsForBye;
+            request.PointsForForfeit = currentSport.PointsForForfeit;
+            request.PointsForWin = currentSport.PointsForWin;
+            request.Description = currentSport.Description;
+            request.Leeway = currentSport.Leeway;
+            request.Rules = currentSport.Rules;
+            request.SportName = currentSport.SportName;
+        }
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            overlayVisible = true;
+            ErrorOr<SportDto> result;
+
+            if (currentSport is null)
+            {
+                result = await _service.Post<SportDto>("sports", request);
+            }
+            else
+            {
+                SportUpdateRequest updateRequest = new()
+                {
+                    Duration = request.Duration,
+                    PointsForLoss = request.PointsForLoss,
+                    PointsForDraw = request.PointsForDraw,
+                    PointsForBye = request.PointsForBye,
+                    PointsForForfeit = request.PointsForForfeit,
+                    PointsForWin = request.PointsForWin,
+                    Description = request.Description,
+                    Leeway = request.Leeway,
+                    Rules = request.Rules,
+                    SportName = request.SportName,
+                    Id = currentSport.Id
+                };
+
+                result = await _service.Put<SportDto>($"sports/{currentSport.Id}", updateRequest);
+            }
+
+            overlayVisible = false;
+
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add($"Sport {request.SportName} was {(currentSport is null ? "Created" : "Updated")}!", Severity.Success);
+                dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialog.Cancel();
+    }
+}
