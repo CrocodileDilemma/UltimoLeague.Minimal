@@ -1,12 +1,116 @@
 ﻿@page "/teams"
 @inherits MainPageBase
+@inject IBaseService _service
 
-<h3>Teams</h3>
+<MudTable ServerData="@(new Func<TableState, Task<TableData<TeamDto>>>(LoadData))" Hover="true" @ref="table"
+          Virtualize="true" FixedHeader="true" LoadingProgressColor="Color.Primary">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Teams</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudIconButton Title="Add New Team" Size="@Size.Medium" Icon="@Icons.Filled.Add" Class="pa-0" Color="Color.Primary" OnClick="@HandleAdd" /></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Code" T="TeamDto">Code</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Name" T="TeamDto">Name</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="League" T="TeamDto">League</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ContactEmail" T="TeamDto">Contact Email</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ContactNumber" T="TeamDto">Contact Number</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudIconButton Title="Edit Team" Size="@Size.Small" Icon="@Icons.Filled.Edit" Class="pa-0" Color="Color.Primary" OnClick="@(() => HandleEdit(context))" /></MudTd>
+        <MudTd DataLabel="Code">@context.Code</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="League">@context.League.Code</MudTd>
+        <MudTd DataLabel="Contact Email">@context.ContactEmail</MudTd>
+        <MudTd DataLabel="Contact Number">@context.ContactNumber</MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No teams so far</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+</MudTable>
 
 @code 
 {
+    private IEnumerable<TeamDto> teams;
+    private MudTable<TeamDto> table;
+    private int totalItems;
+    private string searchString = null;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+    }
+
+    private async Task HandleAdd()
+    {
+        await ShowDialog(_dialogService.Show<TeamDialog>("Add Team"));
+    }
+
+    private async Task HandleEdit(TeamDto team)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("currentTeam", team);
+        await ShowDialog(_dialogService.Show<TeamDialog>("Edit Team", parameters));
+    }
+
+    private async Task ShowDialog(IDialogReference dialog)
+    {
+        var result = await dialog.Result;
+        if (!result.Cancelled)
+        {
+            table.ReloadServerData();
+        }
+    }
+
+    private async Task<TableData<TeamDto>> LoadData(TableState state)
+    {
+        ErrorOr<IEnumerable<TeamDto>> result = await _service.Get<IEnumerable<TeamDto>>("teams");
+
+        if (result.IsError)
+        {
+            return new();
+        }
+        
+        IEnumerable<TeamDto> data = result.Value;
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            data = data.Where(x => x.Code.Contains(searchString) || x.Name.Contains(searchString) || x.ContactEmail.Contains(searchString) ||
+                x.ContactNumber.Contains(searchString) || x.ContactFirstName.Contains(searchString) || x.ContactLastName.Contains(searchString));
+        }
+
+        totalItems = data.Count();
+
+        switch (state.SortLabel)
+        {
+            case "Code":
+                data = data.OrderByDirection(state.SortDirection, o => o.Code);
+                break;
+            case "Name":
+                data = data.OrderByDirection(state.SortDirection, o => o.Name);
+                break;
+            case "ContactEmail":
+                data = data.OrderByDirection(state.SortDirection, o => o.ContactEmail);
+                break;
+            case "ContactNumber":
+                data = data.OrderByDirection(state.SortDirection, o => o.ContactNumber);
+                break;
+            case "League":
+                data = data.OrderByDirection(state.SortDirection, o => o.League.Code);
+                break;
+        }
+
+        teams = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<TeamDto>() { TotalItems = totalItems, Items = data };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
     }
 }

@@ -1,0 +1,65 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IBaseService _service
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Leaderboard" Class="mr-3 mb-n1" />
+            Add New League
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@request" @ref="@form">
+            <MudTextField T="string" Label="Code" Class="mt-3" InputType="InputType.Text"
+                          @bind-Value="request.Code" For="@(() => request.Code)"
+                          Required="true" RequiredError="A Code is required!" />
+            <MudTextField T="string" Label="Name" Class="mt-3" InputType="InputType.Text"
+                @bind-Value="request.Name" For="@(() => request.Name)"
+                Required="true" RequiredError="A Name is required!" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    [Parameter] public string sportId { get; set; }
+    private LeagueRequest request = new LeagueRequest();
+    private MudForm form;
+    private bool overlayVisible = false;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            overlayVisible = true;
+            request.SportId = sportId;
+            ErrorOr<LeagueDto> result = await _service.Post<LeagueDto>("leagues", request);
+            overlayVisible = false;
+
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add($"League { request.Name } was Createed!", Severity.Success);
+                dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialog.Cancel();
+    }
+}

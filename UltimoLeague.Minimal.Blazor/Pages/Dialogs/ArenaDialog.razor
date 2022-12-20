@@ -1,0 +1,60 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IBaseService _service
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Stadium" Class="mr-3 mb-n1" />
+            Add New Arena
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@request" @ref="@form">
+            <MudTextField T="string" Label="Name" Class="mt-3" InputType="InputType.Text"
+                @bind-Value="request.ArenaName" For="@(() => request.ArenaName)"
+                Required="true" RequiredError="A Name is required!" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>       
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    private ArenaRequest request = new ArenaRequest();
+    private MudForm form;
+    private bool overlayVisible = false;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            overlayVisible = true;
+            ErrorOr<ArenaDto> result = await _service.Post<ArenaDto>("arenas", request);
+            overlayVisible = false;
+
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add($"Arena { request.ArenaName } was Createed!", Severity.Success);
+                dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialog.Cancel();
+    }
+}

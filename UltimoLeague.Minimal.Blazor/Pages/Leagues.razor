@@ -1,18 +1,23 @@
 ﻿@page "/leagues"
 @inherits MainPageBase
 @inject IBaseService _service
-@inject ISnackbar _snackbar
 
-<MudDataGrid Items="@leagues">
-    <Columns>
-        <Column T="LeagueDto" Field="@nameof(LeagueDto.Code)" Title="Code" />
-        <Column T="LeagueDto" Field="@nameof(LeagueDto.Name)" Title="Name" />
-        <Column T="LeagueDto" Field="@nameof(LeagueDto.Gender)" Title="Gender" /> 
-        <Column T="LeagueDto" Field="@nameof(LeagueDto.Level)" Title="Level" />
-        <Column T="LeagueDto" Field="@nameof(LeagueDto.Sport.SportName)" Title="Sport" />
-    </Columns>
-</MudDataGrid>
-
+<MudGrid>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
+                <MudFab Icon="@Icons.Material.Filled.Add" Color="Color.Primary" IconSize="Size.Large" Title="Add new League" OnClick="HandleAdd"/>
+        </MudPaper>
+    </MudItem>
+  
+    @foreach (var league in leagues)
+    {
+        <MudItem xs="3">
+            <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
+                @league.Name
+            </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
 
 @code {
     private List<LeagueDto> leagues { get; set; } = new();
@@ -20,15 +25,27 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        await LoadData();
+    }
 
-        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>($"leagues/getBySportId/{ currentSport?.Id }");
-        if (result.IsError)
-        {
-            _snackbar.Add(result.FirstError.Description, Severity.Error);
-        }
-        else if (result.Value is not null)
+    private async Task LoadData()
+    {
+        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>($"leagues/getBySportId/{currentSport.Id}");
+        if (!result.IsError)
         {
             leagues = result.Value.ToList();
+        }
+    }
+
+    private async Task HandleAdd()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("sportId", currentSport.Id);
+        var result = await _dialogService.Show<LeagueDialog>("Add League", parameters).Result;
+        if (!result.Cancelled)
+        {
+            await LoadData();
+            this.StateHasChanged();
         }
     }
 }

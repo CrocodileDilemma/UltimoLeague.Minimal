@@ -15,7 +15,7 @@ public class SessionService : ISessionService
 
     public async Task<SportMinimalDto?> GetCurrentSport()
     {
-       return await _localStorage.GetItemAsync<SportDto>("currentSport");
+       return await _localStorage.GetItemAsync<SportMinimalDto>("currentSport");
     }
 
     public async Task SetCurrentSport(SportMinimalDto sport)

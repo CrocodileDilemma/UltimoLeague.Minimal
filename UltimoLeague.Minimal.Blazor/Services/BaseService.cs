@@ -32,6 +32,12 @@ namespace UltimoLeague.Minimal.Blazor.Services
             return await this.HandleResponse<T>(response);
         }
 
+        public async Task<ErrorOr<T>> Put<T>(string uri, object request)
+        {
+            var response = await _httpClient.PutAsJsonAsync(uri, request);
+            return await this.HandleResponse<T>(response);
+        }
+
         public async Task<ErrorOr<T>> Get<T>(string uri)
         {
             var response = await _httpClient.GetAsync(uri);

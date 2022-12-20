@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using UltimoLeague.Minimal.Blazor.Interfaces;
+using UltimoLeague.Minimal.Blazor.Pages.Dialogs;
 using UltimoLeague.Minimal.Contracts.Dtos;
 
 namespace UltimoLeague.Minimal.Blazor.Shared;

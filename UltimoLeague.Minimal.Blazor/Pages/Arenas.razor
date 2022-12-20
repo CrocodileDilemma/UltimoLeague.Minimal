@@ -3,30 +3,47 @@
 @inject IBaseService _service
 @inject ISnackbar _snackbar
 
-<h3>Arenas</h3>
-<MudDataGrid Items="@arenas">
-    <Columns>
-        <Column T="ArenaDto" Field="ArenaName" Title="Arena Name" />
-        <Column T="ArenaDto" Field="Id" />
-    </Columns>
-</MudDataGrid>
+<MudGrid>
+    <MudItem xs="3">
+        <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
+            <MudFab Icon="@Icons.Material.Filled.Add" Color="Color.Primary" IconSize="Size.Large" Title="Add new Arena" OnClick="HandleAdd" />
+        </MudPaper>
+    </MudItem>
 
+    @foreach (var arena in arenas)
+    {
+        <MudItem xs="3">
+            <MudPaper Class="d-flex align-center justify-center pa-16 ma-2" Elevation="3" Outlined="true" Square="true">
+                @arena.ArenaName
+            </MudPaper>
+         </MudItem>
+    }
+</MudGrid>
 @code {
-    private List<ArenaDto> arenas = new();
+    private List<ArenaDto> arenas { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        await LoadData();
+    }
 
+    private async Task LoadData()
+    {
         ErrorOr<IEnumerable<ArenaDto>> result = await _service.Get<IEnumerable<ArenaDto>>($"arenas");
-        
-        if (result.IsError)
-        {
-            _snackbar.Add(result.FirstError.Description, Severity.Error);
-        }
-        else if (result.Value is not null)
+        if (!result.IsError)
         {
             arenas = result.Value.ToList();
+        }
+    }
+
+    private async Task HandleAdd()
+    {
+        var result = await _dialogService.Show<ArenaDialog>("Add Arena").Result;
+        if (!result.Cancelled)
+        {
+            await LoadData();
+            this.StateHasChanged();
         }
     }
 }

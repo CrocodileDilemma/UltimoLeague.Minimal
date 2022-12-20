@@ -1,0 +1,153 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IBaseService _service
+@inject IDialogService _dialogService
+@inject ISnackbar _snackbar
+
+<MudOverlay Visible="overlayVisible" DarkBackground="true" Absolute="true">
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+</MudOverlay>
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Stadium" Class="mr-3 mb-n1" />
+            @(currentTeam is null ? "Add New Team": "Edit Team")
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@request" @ref="@form">
+            <MudField Label="Team Information" Variant="Variant.Filled">
+                <MudTextField T="string" Label="Code" InputType="InputType.Text"
+                          @bind-Value="request.Code" For="@(() => request.Code)"
+                          Required="true" RequiredError="A Code is required!" />
+                <MudTextField T="string" Label="Name" InputType="InputType.Text"
+                          @bind-Value="request.Name" For="@(() => request.Name)"
+                          Required="true" RequiredError="A Name is required!" />
+                <MudSelect T="DtoBase" Label="League" Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter"
+                           Required="true" RequiredError="A League is required!" @bind-Value="selectedLeague" For="@(() => selectedLeague)">
+                    @foreach (var league in leagues)
+                    {
+                        <MudSelectItem Value="@(new DtoBase(league.Id, league.Name, league.Sport.Id))" />
+                    }
+                </MudSelect>
+            </MudField>
+            <MudField Label="Contact Information" Variant="Variant.Filled" Class="mt-3">
+                    <MudTextField T="string" Label="First Name" InputType="InputType.Text"
+                          @bind-Value="request.ContactFirstName" For="@(() => request.ContactFirstName)"
+                          Required="true" RequiredError="A Contact First Name is required!" />
+                    <MudTextField T="string" Label="Last Name" InputType="InputType.Text"
+                          @bind-Value="request.ContactLastName" For="@(() => request.ContactLastName)"
+                          Required="true" RequiredError="A Contact Last Name is required!" />
+                    <MudTextField T="string" Label="Email" InputType="InputType.Email"
+                            @bind-Value="request.ContactEmail" For="@(() => request.ContactEmail)"
+                            Required="true" RequiredError="A Contact Email is required!" />
+                    <MudTextField T="string" Label="Contact Number" InputType="InputType.Telephone"
+                            @bind-Value="request.ContactNumber" For="@(() => request.ContactNumber)"
+                            Required="true" RequiredError="A Contact Number is required!" />
+            </MudField>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Submit" Color="Color.Primary" Variant="Variant.Filled">Ok</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance dialog { get; set; }
+    [Parameter] public TeamDto currentTeam { get; set; }
+    private TeamRequest request = new TeamRequest();
+    private MudForm form;
+    private bool overlayVisible = true;
+    private List<LeagueDto> leagues { get; set; } = new();
+    private DtoBase selectedLeague { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (currentTeam is not null)
+        {
+            request.Code = currentTeam.Code;
+            request.ContactEmail = currentTeam.ContactEmail;
+            request.ContactFirstName = currentTeam.ContactFirstName;
+            request.ContactLastName = currentTeam.ContactLastName;
+            request.ContactNumber = currentTeam.ContactNumber;
+            request.LeagueId = currentTeam.League.Id;
+            request.Name = currentTeam.Name;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ErrorOr<IEnumerable<LeagueDto>> result = await _service.Get<IEnumerable<LeagueDto>>("leagues");
+        overlayVisible = false;
+        if (!result.IsError)
+        {
+            leagues = result.Value.ToList();
+
+            if (currentTeam is not null)
+            {
+                var league = leagues.FirstOrDefault(x => x.Id == currentTeam.League.Id);
+                if (league is not null)
+                {
+                    request.SportId = league.Sport.Id;
+                    selectedLeague = new DtoBase(league.Id, league.Name, league.Sport.Id);
+                }
+                else
+                {
+                    request.LeagueId = null;
+                }
+            }
+        }
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            overlayVisible = true;
+            request.LeagueId = selectedLeague.Id;
+            request.SportId = selectedLeague.MasterId;
+
+            ErrorOr<TeamDto> result;
+
+            if (currentTeam is null)
+            {
+                result = await _service.Post<TeamDto>("teams", request);
+            }
+            else
+            {
+                TeamUpdateRequest updateRequest = new()
+                {
+                     Code = request.Code,
+                     ContactEmail = request.ContactEmail,
+                     ContactFirstName = request.ContactFirstName,
+                     ContactLastName = request.ContactLastName,
+                     ContactNumber = request.ContactNumber,
+                     LeagueId = request.LeagueId,
+                     SportId = request.SportId,
+                     Id = currentTeam.Id,
+                     Name = currentTeam.Name
+                };
+
+                result = await _service.Put<TeamDto>($"teams/{currentTeam.Id}", request);
+            }
+
+            overlayVisible = false;
+
+            if (result.IsError)
+            {
+                _snackbar.Add(result.FirstError.Description, Severity.Error);
+            }
+            else
+            {
+                _snackbar.Add($"Team {request.Name} was {(string.IsNullOrEmpty(currentTeam.Id) ? "Created" : "Updated")}!", Severity.Success);
+                dialog.Close(DialogResult.Ok(true));
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        dialog.Cancel();
+    }
+}

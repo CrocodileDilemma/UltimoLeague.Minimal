@@ -1,4 +1,5 @@
 ﻿@using System.Security.Claims;
+@using UltimoLeague.Minimal.Blazor.Authorisation
 @inherits MainPageBase
 @inject IAuthenticationService _authService
 @inject NavigationManager _nm
@@ -42,7 +43,7 @@
         <MudNavMenu Color="Color.Inherit">
             <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.TwoTone.Home">Home</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" OnClick="HandleCurrentSport" Icon="@Icons.TwoTone.Sports">@(currentSport?.SportName ?? "[Select Sport]")</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/arenas" Icon="@Icons.TwoTone.SportsBasketball">Arenas</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/arenas" Icon="@Icons.TwoTone.Stadium">Arenas</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/leagues" Icon="@Icons.TwoTone.TableRows">Leagues</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/teams" Icon="@Icons.TwoTone.Groups">Teams</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/players" Icon="@Icons.TwoTone.People">Players</MudNavLink>

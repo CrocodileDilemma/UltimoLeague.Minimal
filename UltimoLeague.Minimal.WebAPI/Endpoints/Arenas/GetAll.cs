@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel;
 using UltimoLeague.Minimal.DAL.Entities;
 using UltimoLeague.Minimal.WebAPI.Services.Interfaces;
 
 namespace UltimoLeague.Minimal.WebAPI.Endpoints.Arenas
 {
+    [AllowAnonymous]
     [HttpGet("arenas")]
     public class GetAll : EndpointWithoutRequest<IEnumerable<ArenaDto>>
     {

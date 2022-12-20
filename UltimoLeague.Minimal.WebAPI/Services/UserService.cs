@@ -167,10 +167,9 @@ namespace UltimoLeague.Minimal.WebAPI.Services
                 foreach (Type type in Assembly.GetAssembly(typeof(BaseEntity)).GetTypes()
                     .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(BaseEntity))))
                 {
-                    string collectionName = ((BsonCollectionAttribute)type.GetCustomAttributes(
-                        typeof(BsonCollectionAttribute),
-                        true)
-                    .FirstOrDefault())?.CollectionName;
+                    string collectionName = ((BsonCollectionAttribute)type
+                        .GetCustomAttributes(typeof(BsonCollectionAttribute), true)
+                        .FirstOrDefault())?.CollectionName;
 
                     if (collectionName is not null && !collections.Contains(collectionName))
                     {
