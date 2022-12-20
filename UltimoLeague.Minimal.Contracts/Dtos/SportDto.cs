@@ -3,6 +3,7 @@
     public class SportMinimalDto : BaseDto
     {
         public string SportName { get; set; }
+        public string Description { get; set; }
     }
     public class SportDto : SportMinimalDto
     {
@@ -12,6 +13,7 @@
         public int PointsForDraw { get; set; }
         public int PointsForLoss { get; set; }
         public int PointsForBye { get; set; }
-        public int PointsForForfeit { get; set; }
+        public int PointsForForfeit { get; set; }       
+        public string Rules { get; set; }
     }
 }

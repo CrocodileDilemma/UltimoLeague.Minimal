@@ -10,6 +10,8 @@
         public int PointsForLoss { get; set; }
         public int PointsForBye { get; set; }
         public int PointsForForfeit { get; set; }
+        public string Description { get; set; }
+        public string Rules { get; set; }
     }
 
     public class SportUpdateRequest
@@ -23,5 +25,7 @@
         public int? PointsForLoss { get; set; }
         public int? PointsForBye { get; set; }
         public int? PointsForForfeit { get; set; }
+        public string? Description { get; set; }
+        public string? Rules { get; set; }
     }
 }
