@@ -16,7 +16,7 @@ namespace UltimoLeague.Minimal.WebAPI.Endpoints.Arenas
         }
         public override async Task HandleAsync(ArenaDto request, CancellationToken ct)
         {
-            Result<Arena> result = await _service.Update(request.Adapt<Arena>());
+            Result<Arena> result = await _service.Update(request);
             if (result.IsFailed)
             {
                 ThrowError(result.Errors[0].Message);

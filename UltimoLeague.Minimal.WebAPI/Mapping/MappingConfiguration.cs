@@ -47,6 +47,11 @@ namespace UltimoLeague.Minimal.WebAPI.Mapping
                 .Map(dest => dest, src => src.Item1)
                 .Map(dest => dest.Sport, src => src.Item2.Adapt<SportMinimal>());
 
+            config.NewConfig<(LeagueUpdateRequest, Sport), League>()
+                .Map(dest => dest, src => src.Item1)
+                .Map(dest => dest.Sport, src => src.Item2.Adapt<SportMinimal>())
+                .IgnoreNullValues(true);
+
             config.NewConfig<PlayerUpdateRequest, Player>()
                 .IgnoreNullValues(true);
 

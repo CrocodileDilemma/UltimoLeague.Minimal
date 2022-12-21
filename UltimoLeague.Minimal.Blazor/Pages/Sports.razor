@@ -38,7 +38,7 @@
 
 @code
 {
-    private IEnumerable<SportDto> sports;
+    private IEnumerable<SportDto> sports = Enumerable.Empty<SportDto>();
     private MudTable<SportDto> table;
     private int totalItems;
     private string searchString = null;
@@ -71,11 +71,11 @@
 
     private async Task<TableData<SportDto>> LoadData(TableState state)
     {
-        ErrorOr<IEnumerable<SportDto>> result = await _service.Get<IEnumerable<SportDto>>("sports");
+        ErrorOr<IEnumerable<SportDto>> result = await _service.Get<IEnumerable<SportDto>>("sports/getAll");
 
         if (result.IsError)
         {
-            return new();
+            return new TableData<SportDto>() { TotalItems = 0, Items = Enumerable.Empty<SportDto>() };
         }
 
         IEnumerable<SportDto> data = result.Value;

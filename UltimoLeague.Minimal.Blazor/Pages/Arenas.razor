@@ -28,7 +28,7 @@
 
 @code
 {
-    private IEnumerable<ArenaDto> arenas;
+    private IEnumerable<ArenaDto> arenas = Enumerable.Empty<ArenaDto>();
     private MudTable<ArenaDto> table;
     private int totalItems;
     private string searchString = null;
@@ -65,7 +65,7 @@
 
         if (result.IsError)
         {
-            return new();
+            return new TableData<ArenaDto>() { TotalItems = 0, Items = Enumerable.Empty<ArenaDto>() };
         }
 
         IEnumerable<ArenaDto> data = result.Value;

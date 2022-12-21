@@ -9,7 +9,7 @@
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Leaderboard" Class="mr-3 mb-n1" />
+            <MudIcon Icon="@Icons.Material.Filled.TableRows" Class="mr-3 mb-n1" />
             @(currentLeague is null ? "Add New League" : "Edit League")
         </MudText>
     </TitleContent>
@@ -23,11 +23,13 @@
                 Required="true" RequiredError="A Name is required!" />
             <MudTextField T="int" Label="Level" Class="mt-3" InputType="InputType.Number"
                           @bind-Value="request.Level" For="@(() => request.Level)" />
-            <MudRadioGroup @bind-SelectedOption="request.Gender">
-                <MudRadio Option="@(DAL.Common.Gender.None)">None</MudRadio>
-                <MudRadio Option="@(DAL.Common.Gender.Male)">Male</MudRadio>
-                <MudRadio Option="@(DAL.Common.Gender.Female)">Female</MudRadio>
-            </MudRadioGroup>
+            <MudField Label="Gender" Variant="Variant.Outlined">
+                <MudRadioGroup @bind-SelectedOption="request.Gender">
+                    <MudRadio Option="@(DAL.Common.Gender.None)">None</MudRadio>
+                    <MudRadio Option="@(DAL.Common.Gender.Male)">Male</MudRadio>
+                    <MudRadio Option="@(DAL.Common.Gender.Female)">Female</MudRadio>
+                </MudRadioGroup>
+            </MudField>
             <MudSelect T="DtoBase" Label="Sport" Variant="Variant.Text" AnchorOrigin="Origin.BottomCenter"
                        @bind-Value="selectedSport" For="@(() => selectedSport)"
                        Required="true" RequiredError="A Sport is required!">
@@ -72,7 +74,7 @@
         if (!result.IsError)
         {
             sports = result.Value;
-            
+
             if (currentLeague is not null)
             {
                 var sport = sports.FirstOrDefault(x => x.Id == currentLeague.Sport.Id);
@@ -94,11 +96,12 @@
         if (form.IsValid)
         {
             overlayVisible = true;
+            request.SportId = selectedSport.Id;
             ErrorOr<LeagueDto> result;
 
             if (currentLeague is null)
             {
-                result = await _service.Post<LeagueDto>("league", request);
+                result = await _service.Post<LeagueDto>("leagues", request);
             }
             else
             {
@@ -112,7 +115,7 @@
                     Id = currentLeague.Id
                 };
 
-                result = await _service.Put<LeagueDto>($"league/{currentLeague.Id}", request);
+                result = await _service.Put<LeagueDto>($"leagues/{currentLeague.Id}", updateRequest);
             }
 
             overlayVisible = false;

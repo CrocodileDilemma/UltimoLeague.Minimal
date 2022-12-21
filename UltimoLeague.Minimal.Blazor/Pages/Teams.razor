@@ -36,7 +36,7 @@
 
 @code 
 {
-    private IEnumerable<TeamDto> teams;
+    private IEnumerable<TeamDto> teams = Enumerable.Empty<TeamDto>();
     private MudTable<TeamDto> table;
     private int totalItems;
     private string searchString = null;
@@ -73,7 +73,7 @@
 
         if (result.IsError)
         {
-            return new();
+            return new TableData<TeamDto>() { TotalItems = 0, Items = Enumerable.Empty<TeamDto>() };
         }
         
         IEnumerable<TeamDto> data = result.Value;

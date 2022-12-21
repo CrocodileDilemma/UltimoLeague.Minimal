@@ -43,7 +43,7 @@
     <MudDrawer @bind-Open="@drawerOpen" ClipMode="DrawerClipMode.Docked" Elevation="2">
         <MudNavMenu Color="Color.Inherit">
             <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.TwoTone.Home">Home</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Href="/sports" Icon="@Icons.TwoTone.Sports">Sports</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/sports" Icon="@Icons.TwoTone.SportsBasketball">Sports</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/arenas" Icon="@Icons.TwoTone.Stadium">Arenas</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/leagues" Icon="@Icons.TwoTone.TableRows">Leagues</MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Href="/teams" Icon="@Icons.TwoTone.Groups">Teams</MudNavLink>
@@ -54,7 +54,7 @@
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge"> 
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-2"> 
             @Body
         </MudContainer>
     </MudMainContent>

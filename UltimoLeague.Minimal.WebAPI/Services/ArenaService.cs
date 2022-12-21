@@ -21,5 +21,19 @@ namespace UltimoLeague.Minimal.WebAPI.Services
 
             return await base.Post(arena);
         }
+
+        public async Task<Result<Arena>> Update(ArenaDto request)
+        {
+            var arena = await Repository.FindOneAsync(x => x.ArenaName == request.ArenaName && x.Id.ToString() != request.Id);
+
+            if (arena is not null)
+            {
+                return Result.Fail<Arena>(BaseErrors.ObjectExists<Arena>());
+            }
+
+            arena = request.Adapt<Arena>();
+
+            return await base.Update(arena);
+        }
     }
 }
